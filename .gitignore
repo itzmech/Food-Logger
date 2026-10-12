@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+dev-dist
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# TS build info
+*.tsbuildinfo

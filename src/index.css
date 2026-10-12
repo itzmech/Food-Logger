@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+@theme {
+  /* ------------------------------------------------------------------ */
+  /* Palette: restrained dark system, single violet accent.              */
+  /* ------------------------------------------------------------------ */
+  --color-base: #0a0b10;
+  --color-base-raised: #0d0e15;
+  --color-surface: #101219;
+  --color-surface-2: #171a24;
+  --color-overlay: #1c2030;
+  --color-line: #1e2230;
+  --color-line-strong: #2c3244;
+
+  --color-ink: #f2f4fa;
+  --color-ink-2: #a6aec0;
+  --color-ink-3: #6e7688;
+
+  --color-accent: #8b5cf6;
+  --color-accent-strong: #a78bfa;
+  --color-accent-deep: #7c3aed;
+  --color-accent-dim: #8b5cf624;
+
+  --color-success: #34d399;
+  --color-success-dim: #34d3991f;
+  --color-warning: #fbbf24;
+  --color-warning-dim: #fbbf241f;
+  --color-danger: #fb7185;
+  --color-danger-dim: #fb71851f;
+
+  --font-sans:
+    'Inter', 'Segoe UI', system-ui, -apple-system, 'Roboto', 'Helvetica Neue',
+    'Noto Sans', sans-serif;
+
+  --animate-page-in: page-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-rise: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pulse-soft: pulse-soft 2.2s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.18s ease-out both;
+  --animate-sheet-up: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes sheet-up {
+    from {
+      transform: translateY(60%);
+      opacity: 0.6;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-base);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+
+  ::selection {
+    background: #8b5cf640;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 8px;
+    border: 2px solid var(--color-base);
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Room for the fixed bottom navigation plus iOS/Android safe areas. */
+  .pb-nav {
+    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 768px) {
+    .pb-nav {
+      padding-bottom: 3rem;
+    }
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .stagger > * {
+    animation: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0.02s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.06s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.1s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.14s; }
+  .stagger > *:nth-child(5) { animation-delay: 0.18s; }
+  .stagger > *:nth-child(6) { animation-delay: 0.22s; }
+  .stagger > *:nth-child(7) { animation-delay: 0.26s; }
+  .stagger > *:nth-child(8) { animation-delay: 0.3s; }
+}

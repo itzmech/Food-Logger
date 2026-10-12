@@ -1,0 +1,104 @@
+import type { ID, ISODate, ISODateTime, Timestamped } from './common'
+
+export type WorkoutStatus = 'planned' | 'in-progress' | 'completed' | 'skipped'
+
+export type WorkoutType = 'strength' | 'cardio' | 'mobility' | 'rest' | 'other'
+
+export type ExerciseCategory =
+  | 'chest'
+  | 'back'
+  | 'legs'
+  | 'shoulders'
+  | 'arms'
+  | 'core'
+  | 'full-body'
+  | 'cardio'
+  | 'mobility'
+  | 'other'
+
+export type Equipment =
+  | 'barbell'
+  | 'dumbbell'
+  | 'machine'
+  | 'cable'
+  | 'kettlebell'
+  | 'bodyweight'
+  | 'band'
+  | 'other'
+
+/** Reference entry in the exercise library (not a logged activity). */
+export interface Exercise {
+  id: ID
+  name: string
+  /** Lower-cased name used for the search index. */
+  searchName: string
+  category: ExerciseCategory
+  equipment: Equipment
+  primaryMuscles: string[]
+  isCustom: boolean
+  instructions: string | null
+}
+
+/** Exercise planned inside a workout, with a name snapshot for history. */
+export interface WorkoutExerciseEntry {
+  exerciseId: ID
+  name: string
+  targetSets: number | null
+  /** Free-form rep target, e.g. "8-12". */
+  targetReps: string | null
+  note: string | null
+}
+
+export interface Workout extends Timestamped {
+  id: ID
+  date: ISODate
+  name: string
+  type: WorkoutType
+  status: WorkoutStatus
+  startedAt: ISODateTime | null
+  completedAt: ISODateTime | null
+  durationMinutes: number | null
+  notes: string | null
+  exercises: WorkoutExerciseEntry[]
+}
+
+export interface WorkoutSet extends Timestamped {
+  id: ID
+  workoutId: ID
+  exerciseId: ID
+  /** Denormalised exercise name snapshot. */
+  exerciseName: string
+  /** 1-based position within the exercise. */
+  setNumber: number
+  reps: number
+  weightKg: number | null
+  /** Rate of perceived exertion, 1–10. */
+  rpe: number | null
+  isWarmup: boolean
+  completedAt: ISODateTime | null
+}
+
+export type CardioType =
+  | 'walk'
+  | 'jog'
+  | 'run'
+  | 'cycling'
+  | 'swimming'
+  | 'stairs'
+  | 'rope'
+  | 'hiit'
+  | 'other'
+
+export type CardioIntensity = 'low' | 'moderate' | 'high'
+
+export interface CardioSession extends Timestamped {
+  id: ID
+  date: ISODate
+  type: CardioType
+  durationMinutes: number
+  distanceKm: number | null
+  avgHeartRate: number | null
+  intensity: CardioIntensity | null
+  caloriesBurned: number | null
+  note: string | null
+}
