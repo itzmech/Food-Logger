@@ -34,6 +34,7 @@ export default function MenuPage() {
 
   const [dayOpen, setDayOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [menuImportOpen, setMenuImportOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
   const [addMonthSheet, setAddMonthSheet] = useState<boolean>(false)
   const [copySheet, setCopySheet] = useState<{ open: boolean; fromMonth: string } | null>(null)
@@ -90,6 +91,11 @@ export default function MenuPage() {
             </Button>
           ) : null
         }
+        {menu ? null : (
+          <Button size='sm' variant='secondary' onClick={() => setMenuImportOpen(true)}>
+            Add menu
+          </Button>
+        )
       />
 
       <InfoNote tone='accent' icon='check' title='Available ≠ eaten'>

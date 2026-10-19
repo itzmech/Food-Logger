@@ -24,6 +24,7 @@ export interface AddFoodSheetProps {
   initialMeal: MealType
   onClose: () => void
   onLogged: () => void
+  prefillName: string
 }
 
 type Stage =
@@ -71,8 +72,12 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
       setError(null)
       setJustLogged(null)
       setCalForm({ calories: '', protein: '', carbs: '', fat: '' })
+      // Set prefilled name in query if provided - shows as selected meal
+      if (prefillName) {
+        setQuery(prefillName)
+      }
     }
-  }, [open, initialMeal])
+  }, [open, initialMeal, prefillName])
 
   const results = useMemo(() => searchFoods(foods, query, 30), [foods, query])
   const recents = useMemo(() => rankQuickAddFoods(foods, 8), [foods])

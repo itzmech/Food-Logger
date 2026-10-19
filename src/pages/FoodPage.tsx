@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FoodSummaryCard } from '@/components/food/FoodSummaryCard'
 import { MealSection } from '@/components/food/MealSection'
-import { AddFoodSheet } from '@/components/food/AddFoodSheet'
+import { MenuImportSheet } from '@/components/menu/MenuImportSheet'
 import { EditLogSheet } from '@/components/food/EditLogSheet'
 import { FoodDatabaseSheet } from '@/components/food/FoodDatabaseSheet'
 import { FoodActionsBridge } from '@/components/food/FoodActionsBridge'
@@ -21,12 +21,7 @@ import type { FoodLog, MealType } from '@/types'
 import { MEAL_LABELS } from '@/types'
 import { formatLongDate, todayISO } from '@/utils/date'
 
-/**
- * Food — the daily logging hub.
- *
- * MESS MENU ≠ FOOD LOG: everything on this page comes from explicit log
- * entries. The mess menu never writes here.
- */
+/** Food — the daily logging hub. MESS MENU ≠ FOOD LOG. */
 export default function FoodPage() {
   const today = todayISO()
 
@@ -42,27 +37,21 @@ function FoodPageBody({ date }: { date: string }) {
   const { logs, loading, remove } = useFoodDay(date)
   const { foods } = useFoods()
 
+  const [editing, setEditing] = useState<FoodLog | null>(null)
+  const [databaseOpen, setDatabaseOpen] = useState(false)
+  const [menuImportOpen, setMenuImportOpen] = useState(false)
+
   const handleRemoveLog = (log: FoodLog) => {
     void remove(log.id)
   }
 
-  const [addOpen, setAddOpen] = useState(false)
-  const [addMeal, setAddMeal] = useState<MealType>('breakfast')
-  const [editing, setEditing] = useState<FoodLog | null>(null)
-  const [databaseOpen, setDatabaseOpen] = useState(false)
-
   const meals = useMemo(() => groupLogsByMeal(logs), [logs])
   const recents = useMemo(() => rankQuickAddFoods(foods, 6), [foods])
-
-  const openAdd = (meal: MealType) => {
-    setAddMeal(meal)
-    setAddOpen(true)
-  }
 
   const hasAnyFood = foods.length > 0
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col space-y-6">
       <PageHeader
         title="Food"
         subtitle={formatLongDate(date)}
@@ -176,8 +165,16 @@ function FoodPageBody({ date }: { date: string }) {
         onClick={() => openAdd('breakfast')}
         className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line-strong py-4 text-sm font-semibold text-ink-2 transition-colors hover:border-accent/50 hover:text-accent-strong"
       >
-        <Icon name="plus" size={17} />
-        Add food
+        <Icon name="plus" size={17} />Add food
+      </button>
+
+      {/* Add menu button */}
+      <button
+        type="button"
+        onClick={() => setMenuImportOpen(true)}
+        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-line-strong py-4 text-sm font-semibold text-ink-2 transition-colors hover:border-accent/50 hover:text-accent-strong"
+      >
+        <Icon name="upload" size={17} />Add menu
       </button>
 
       <p className="px-1 text-center text-[11px] text-ink-3">
@@ -185,12 +182,8 @@ function FoodPageBody({ date }: { date: string }) {
       </p>
 
       {/* Sheets -------------------------------------------------------- */}
-      <AddFoodSheet
-        open={addOpen}
-        date={date}
-        initialMeal={addMeal}
-        onClose={() => setAddOpen(false)}
-        onLogged={() => undefined}
+      <MenuImportSheet
+        onClose={() => setMenuImportOpen(false)}
       />
       <EditLogSheet
         log={editing}
@@ -205,4 +198,6 @@ function FoodPageBody({ date }: { date: string }) {
   )
 }
 
-
+function openAdd(meal: MealType) {
+  setAddOpen(true)
+}

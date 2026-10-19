@@ -1,18 +1,39 @@
-import { BottomSheet } from '@/components/ui/BottomSheet'
+import { useState } from 'react'
+import { cn } from '@/utils/cn'
+import { Icon } from '@/components/icons'
 
-export type MenuImportSheetProps = { open: boolean; onClose: () => void }
+export function MenuImportSheet({
+  onClose,
+}: {
+  onClose: () => void
+}) {
+  const [file, setFile] = useState<File | null>(null)
 
-export function MenuImportSheet({ open, onClose }: MenuImportSheetProps) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFile(e.target.files?.[0] ?? null)
+  }
+
   return (
-    <BottomSheet open={open} onClose={onClose}>
-      <div className="flex h-full flex-col">
-        <div className="flex items-center justify-between border-b border-line px-4 py-3">
-          <h2 className="text-lg font-semibold text-ink">Import monthly mess menu</h2>
-        </div>
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-12 text-center">
-          <p className="max-w-sm text-sm text-ink-3">Import monthly menu support is under rebuild.</p>
-        </div>
+    <div className="flex flex-col min-h-[calc(100vh-1rem)] p-4 md:p-6 space-y-4 bg-surface-1">
+      <h2 className="text-xl font-semibold text-ink">Import Monthly Menu</h2>
+
+      <p className="text-ink-3">
+        Choose your menu file. Supported formats will expand later.
+      </p>
+
+      <div>
+        <input
+          type="file"
+          accept=".txt,.csv,.json"
+          onChange={handleFileChange}
+          className="w-full rounded px-4 py-2 text-sm font-medium text-accent-strong bg-surface-2 hover:bg-surface-3 transition-colors"
+        />
       </div>
-    </BottomSheet>
+
+      <button onClick={onClose} className="flex items-center gap-2 rounded-sm px-4 py-2 text-sm font-medium text-surface bg-surface-2 hover:bg-surface-3 transition-colors">
+        <Icon name="close" size={16} />
+        Cancel
+      </button>
+    </div>
   )
 }
