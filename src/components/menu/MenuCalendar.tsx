@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { formatShortDate, formatLongDate } from '@/utils/date'
-import { MEAL_LABELS } from '@/types'
 import { WEEKDAY_MIN } from '@/lib/constants'
 import type { MessMenu } from '@/types'
 import { MEAL_TYPES } from '@/types'
@@ -100,9 +99,9 @@ export function MenuCalendar({
                 key={cell.date}
                 type="button"
                 onClick={() => onDayTap?.(cell.date)}
-                aria-label={`${formatShortDate(cell.date)}${cell.hasMenu ? ' — ' + MEAL_LABELS['breakfast'] : ''}`}
+                aria-label={`${formatShortDate(cell.date)}${cell.hasMenu ? ' — ' + cell.meals + ' meals' : ''}${(!cell.hasMenu && cell.meals === 0) ? ' — no menu' : ''}`}
                 className={cn(
-                  'relative flex aspect-square flex-col items-center justify-center rounded-xl border text-center transition-colors',
+                  'relative flex aspect-square flex-col items-center justify-center rounded-xl border text-center transition-colors touch-target',
                   cell.hasMenu
                     ? 'border-accent/30 bg-accent-dim text-accent-strong'
                     : 'border-transparent bg-surface-2 text-ink-3 hover:bg-surface-3 hover:text-ink',

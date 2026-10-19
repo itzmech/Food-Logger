@@ -137,7 +137,7 @@ export function CardioLogForm() {
           placeholder="Optional"
           min={0}
           step={0.1}
-          hint="Skipped? Derived from distance ÷ duration."
+          hint="Auto-derived from distance ÷ time if you skip."
         />
         <NumberField
           label="Incline"

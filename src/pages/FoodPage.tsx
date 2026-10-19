@@ -66,12 +66,13 @@ function FoodPageBody({ date }: { date: string }) {
       <PageHeader
         title="Food"
         subtitle={formatLongDate(date)}
+        compact
         action={
           <button
             type="button"
             onClick={() => setDatabaseOpen(true)}
             aria-label="Manage food database"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-ink-2 transition-colors hover:text-ink"
+            className="touch-target inline-flex h-9 w-9 items-center justify-center rounded-xl border border-line bg-surface text-ink-2 transition-colors hover:text-ink"
           >
             <Icon name="database" size={18} />
           </button>

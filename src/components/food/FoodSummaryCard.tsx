@@ -1,7 +1,6 @@
 import { Card } from '@/components/ui/Card'
 import { formatCalories } from '@/utils/format'
 import type { NutritionTotals } from '@/lib/nutrition'
-import { MacroBars } from '@/components/food/MacroBars'
 
 export interface FoodSummaryCardProps {
   totals: NutritionTotals
@@ -11,9 +10,9 @@ export interface FoodSummaryCardProps {
 
 /**
  * Today's calorie picture: a progress ring, remaining/over readout and the
- * macro bars. Honest when there is no data — 0 consumed, "—" when no target.
+ * macro readout. Honest when there is no data — 0 consumed, "—" when no target.
  */
-export function FoodSummaryCard({ totals, targetCalories, targetProtein }: FoodSummaryCardProps) {
+export function FoodSummaryCard({ totals, targetCalories }: FoodSummaryCardProps) {
   const consumed = totals.calories
   const hasTarget = targetCalories != null && targetCalories > 0
   const ratio = hasTarget ? Math.min(consumed / (targetCalories as number), 1) : 0
@@ -31,7 +30,7 @@ export function FoodSummaryCard({ totals, targetCalories, targetProtein }: FoodS
     : 0
 
   return (
-    <Card className="flex items-center gap-5">
+    <Card className="flex items-center gap-4">
       <div className="relative shrink-0" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
           <circle
@@ -70,7 +69,7 @@ export function FoodSummaryCard({ totals, targetCalories, targetProtein }: FoodS
           ) : null}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[22px] font-bold leading-none text-ink tabular-nums">
+          <span className="text-[20px] font-bold leading-none text-ink tabular-nums">
             {formatCalories(consumed)}
           </span>
           <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-ink-3">
@@ -79,12 +78,12 @@ export function FoodSummaryCard({ totals, targetCalories, targetProtein }: FoodS
         </div>
       </div>
 
-      <div className="min-w-0 flex-1 space-y-4">
+      <div className="min-w-0 flex-1 space-y-3">
         <div className="space-y-1">
           <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-ink-3">
             Calories
           </p>
-          <p className="text-[15px] font-semibold text-ink tabular-nums">
+          <p className="text-[14px] font-semibold text-ink tabular-nums">
             {formatCalories(consumed)}
             <span className="text-ink-3"> / </span>
             {hasTarget ? (
@@ -94,24 +93,34 @@ export function FoodSummaryCard({ totals, targetCalories, targetProtein }: FoodS
             )}
             <span className="text-ink-3"> kcal</span>
           </p>
-          <p className="text-[12px] text-ink-3">
+          <p className="text-[11px] text-ink-3">
             {over
-              ? `${formatCalories(consumed - (targetCalories as number))} kcal over target`
+              ? `${formatCalories(consumed - (targetCalories as number))} kcal over`
               : remaining != null
-                ? `${formatCalories(remaining)} kcal remaining`
+                ? `${formatCalories(remaining)} kcal left`
                 : totals.itemCount === 0
                   ? 'Nothing logged yet today.'
                   : 'Set a calorie target in Settings → Goals.'}
           </p>
+        </div>          <div className="grid grid-cols-3 gap-3">
+          <div className="text-center">
+            <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">Protein</p>
+            <p className="text-[13px] font-semibold text-ink tabular-nums">{formatGrams(totals.protein)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">Carbs</p>
+            <p className="text-[13px] font-semibold text-ink tabular-nums">{totals.carbs != null ? formatGrams(totals.carbs) : '—'}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-ink-3">Fat</p>
+            <p className="text-[13px] font-semibold text-ink tabular-nums">{totals.fat != null ? formatGrams(totals.fat) : '—'}</p>
+          </div>
         </div>
-
-        <MacroBars
-          protein={totals.protein}
-          carbs={totals.carbs}
-          fat={totals.fat}
-          targetProtein={targetProtein}
-        />
       </div>
     </Card>
   )
+}
+
+function formatGrams(value: number | null): string {
+  return value == null ? '—' : `${Math.round(value)}g`
 }

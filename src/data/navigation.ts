@@ -14,10 +14,11 @@ export interface NavItem {
   description: string
 }
 
-export const NAV_ITEMS: NavItem[] = [
+/** Primary destinations shown in the mobile bottom bar (max 5). */
+export const PRIMARY_NAV_ITEMS: NavItem[] = [
   {
     id: 'dashboard',
-    label: 'Dashboard',
+    label: 'Home',
     path: '/',
     icon: 'dashboard',
     description: 'Today at a glance',
@@ -44,6 +45,17 @@ export const NAV_ITEMS: NavItem[] = [
     description: 'Weight, measurements & charts',
   },
   {
+    id: 'tasks',
+    label: 'Tasks',
+    path: '/tasks',
+    icon: 'check',
+    description: "Today's to-dos",
+  },
+]
+
+/** Secondary destinations: kept out of the bottom bar on phones. */
+export const SECONDARY_NAV_ITEMS: NavItem[] = [
+  {
     id: 'history',
     label: 'History',
     path: '/history',
@@ -64,13 +76,12 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'menu',
     description: 'Mess menu & overrides',
   },
-  {
-    id: 'tasks',
-    label: 'Tasks',
-    path: '/tasks',
-    icon: 'check',
-    description: "Today's to-dos",
-  },
+]
+
+/** All nav items, for the desktop sidebar. */
+export const NAV_ITEMS: NavItem[] = [
+  ...PRIMARY_NAV_ITEMS,
+  ...SECONDARY_NAV_ITEMS,
 ]
 
 export const SETTINGS_ITEM: NavItem = {

@@ -32,6 +32,7 @@ export default function ProgressPage() {
             ? `${goal.weeks}-week journey · started ${goal.startDate}`
             : 'Charts fill in as you log data'
         }
+        compact
       />
 
       <SectionCard

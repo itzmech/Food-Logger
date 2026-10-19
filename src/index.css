@@ -94,6 +94,8 @@
     -webkit-tap-highlight-color: transparent;
     scrollbar-width: thin;
     scrollbar-color: var(--color-line-strong) transparent;
+    /* Prevent overscroll bounce from reaching the body when UI is open. */
+    overscroll-behavior: contain;
   }
 
   body {
@@ -104,6 +106,15 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overscroll-behavior-y: none;
+    /* Prevent pull-to-refresh and double-tap zoom on the app shell. */
+    touch-action: pan-y pan-left pan-right;
+  }
+
+  /* Mobile: disable double-tap zoom on interactive controls that already
+     have their own tap handling (buttons, chips, cells). */
+  button,
+  .no-zoom {
+    touch-action: manipulation;
   }
 
   ::selection {
@@ -149,12 +160,20 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* Ensure the viewport is never smaller than the device width. */
+  img,
+  video,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 @layer utilities {
   /* Room for the fixed bottom navigation plus iOS/Android safe areas. */
   .pb-nav {
-    padding-bottom: calc(5.75rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
   }
   @media (min-width: 768px) {
     .pb-nav {
@@ -179,4 +198,10 @@
   .stagger > *:nth-child(6) { animation-delay: 0.22s; }
   .stagger > *:nth-child(7) { animation-delay: 0.26s; }
   .stagger > *:nth-child(8) { animation-delay: 0.3s; }
+
+  /* Touch-friendly minimum target for mobile buttons/links. */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }

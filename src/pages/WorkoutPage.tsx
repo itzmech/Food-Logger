@@ -55,19 +55,19 @@ export default function WorkoutPage() {
 
   return (
     <div className="space-y-6 pb-nav">
-      <header className="flex items-end justify-between gap-4">
+      <header className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink">
-            WORKOUT
+          <h1 className="text-[22px] font-bold leading-tight tracking-tight text-ink">
+            {view === 'log' ? 'Workout' : view === 'plan' ? 'Weekly plan' : view === 'library' ? 'Exercises' : 'Cardio'}
           </h1>
-          <p className="mt-1 text-sm text-ink-3">
+          <p className="mt-0.5 text-sm text-ink-3">
             {view === 'log'
               ? `Date — ${formatShortDate(selectedDate)}`
               : view === 'plan'
-                ? 'Weekly plan'
+                ? 'Plan your week'
                 : view === 'library'
-                  ? 'Exercise library'
-                  : 'Cardio'}
+                  ? 'Your exercise database'
+                  : 'Log walks, runs, rides'}
           </p>
         </div>
         <div className="flex gap-1">

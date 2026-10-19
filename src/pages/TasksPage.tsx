@@ -105,8 +105,9 @@ export default function TasksPage() {
       <PageHeader
         title="Tasks"
         subtitle="Your daily to-dos"
+        compact
         action={
-          <Button size="sm" onClick={openAdd}>
+          <Button size="sm" onClick={openAdd} className='touch-target'>
             <Icon name="plus" size={15} />
             Add task
           </Button>

@@ -21,6 +21,9 @@ export interface FoodFormProps {
 interface FieldErrors {
   name?: string
   calories?: string
+  protein?: string
+  carbs?: string
+  fat?: string
   baseQuantity?: string
 }
 
@@ -52,34 +55,47 @@ export function FoodForm({
       baseQuantity: Number(baseQuantity),
       baseUnit,
       calories: Number(calories),
-      protein: Number(protein) || 0,
+      protein: Number(protein),
       carbs: carbs === '' ? null : Number(carbs),
       fat: fat === '' ? null : Number(fat),
     }
     if (
       !parsed.name ||
       !Number.isFinite(parsed.calories) ||
+      parsed.calories < 0 ||
+      parsed.calories > 99999 ||
       !Number.isFinite(parsed.baseQuantity) ||
-      parsed.baseQuantity <= 0
+      parsed.baseQuantity <= 0 ||
+      parsed.baseQuantity > 99999
     ) {
       return null
     }
     return {
       ...parsed,
-      protein: Math.max(0, parsed.protein),
+      protein: Number.isFinite(parsed.protein) ? Math.max(0, parsed.protein) : 0,
     }
   })()
 
   const handleSubmit = () => {
     const errors: FieldErrors = {}
     if (!name.trim()) errors.name = 'Give this food a name.'
-    if (calories.trim() === '' || !Number.isFinite(Number(calories)) || Number(calories) < 0) {
-      errors.calories = 'Enter estimated calories (0 or more).'
+    if (calories.trim() === '' || !Number.isFinite(Number(calories)) || Number(calories) < 0 || Number(calories) > 9999) {
+      errors.calories = 'Enter calories from 0 to 9,999 kcal.'
+    }
+    if (protein.trim() !== '' && (!Number.isFinite(Number(protein)) || Number(protein) < 0 || Number(protein) > 9999)) {
+      errors.protein = 'Enter protein from 0 to 9,999 g.'
+    }
+    if (carbs.trim() !== '' && (!Number.isFinite(Number(carbs)) || Number(carbs) < 0 || Number(carbs) > 9999)) {
+      errors.carbs = 'Enter carbs from 0 to 9,999 g.'
+    }
+    if (fat.trim() !== '' && (!Number.isFinite(Number(fat)) || Number(fat) < 0 || Number(fat) > 9999)) {
+      errors.fat = 'Enter fat from 0 to 9,999 g.'
     }
     if (
       baseQuantity.trim() === '' ||
       !Number.isFinite(Number(baseQuantity)) ||
-      Number(baseQuantity) <= 0
+      Number(baseQuantity) <= 0 ||
+      Number(baseQuantity) > 99999
     ) {
       errors.baseQuantity = 'Base quantity must be greater than zero.'
     }
@@ -88,8 +104,14 @@ export function FoodForm({
     if (!preview) return
 
     onSubmit({
-      ...preview,
-      calories: Math.max(0, Math.round(preview.calories)),
+      name: preview.name,
+      category: preview.category,
+      baseQuantity: Math.round(preview.baseQuantity),
+      baseUnit: preview.baseUnit,
+      calories: Math.round(preview.calories),
+      protein: Math.max(0, Math.round(preview.protein * 10) / 10),
+      carbs: preview.carbs == null ? null : Math.round(preview.carbs * 10) / 10,
+      fat: preview.fat == null ? null : Math.round(preview.fat * 10) / 10,
     })
   }
 
@@ -120,6 +142,7 @@ export function FoodForm({
           label="Calories"
           suffix="kcal"
           min={0}
+          max={9999}
           step={1}
           placeholder="required"
           value={calories}
@@ -130,28 +153,34 @@ export function FoodForm({
           label="Protein"
           suffix="g"
           min={0}
+          max={9999}
           step={0.1}
           placeholder="0"
           value={protein}
           onChange={(event) => setProtein(event.target.value)}
+          error={fieldErrors.protein}
         />
         <NumberField
           label="Carbs"
           suffix="g"
           min={0}
+          max={9999}
           step={0.1}
           placeholder="optional"
           value={carbs}
           onChange={(event) => setCarbs(event.target.value)}
+          error={fieldErrors.carbs}
         />
         <NumberField
           label="Fat"
           suffix="g"
           min={0}
+          max={9999}
           step={0.1}
           placeholder="optional"
           value={fat}
           onChange={(event) => setFat(event.target.value)}
+          error={fieldErrors.fat}
         />
       </div>
 
@@ -184,9 +213,9 @@ export function FoodForm({
 
       <p className="text-[12px] leading-snug text-ink-3">
         {preview
-          ? `Saved as ${formatNumber(Math.round(preview.calories))} kcal · ${formatNumber(preview.protein)}g protein per ${formatNumber(preview.baseQuantity)} ${preview.baseUnit}.`
+          ? `Saved as ${formatNumber(Math.round(preview.calories))} kcal · ${formatNumber(Math.max(0, preview.protein))}g protein per ${formatNumber(preview.baseQuantity)} ${preview.baseUnit}.`
           : 'Enter the nutrition for one natural serving — e.g. per 100 g or per piece.'}
-        {' '}All values are estimates you control.
+        {' '}All values are estimates you control. Missing values stay missing — they are never filled in for you.
       </p>
 
       {error ? <p className="text-[13px] text-danger">{error}</p> : null}

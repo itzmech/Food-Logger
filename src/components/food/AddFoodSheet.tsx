@@ -138,18 +138,28 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
   const quickDraft = useMemo(() => {
     if (stage.name !== 'quick') return null
     const name = stage.prefillName.trim()
-    const calories = Number(calForm.calories)
-    const protein = Number(calForm.protein) || 0
-    const carbs = calForm.carbs === '' ? null : Number(calForm.carbs)
-    const fat = calForm.fat === '' ? null : Number(calForm.fat)
-    if (!name || !Number.isFinite(calories) || calories <= 0) return null
+    const fieldCal = calForm.calories.trim()
+    const fieldProtein = calForm.protein.trim()
+    const fieldCarbs = calForm.carbs.trim()
+    const fieldFat = calForm.fat.trim()
+    const caloriesRaw = fieldCal === '' ? NaN : Number(calForm.calories)
+    const proteinRaw = fieldProtein === '' ? NaN : Number(calForm.protein)
+    const carbsRaw = fieldCarbs === '' ? NaN : Number(calForm.carbs)
+    const fatRaw = fieldFat === '' ? NaN : Number(calForm.fat)
+
+    if (!name) return null
+    if (fieldCal === '' || !Number.isFinite(caloriesRaw) || caloriesRaw <= 0 || caloriesRaw > 99999) return null
+    if (fieldProtein !== '' && (!Number.isFinite(proteinRaw) || proteinRaw < 0 || proteinRaw > 99999)) return null
+    if (fieldCarbs !== '' && (!Number.isFinite(carbsRaw) || carbsRaw < 0 || carbsRaw > 99999)) return null
+    if (fieldFat !== '' && (!Number.isFinite(fatRaw) || fatRaw < 0 || fatRaw > 99999)) return null
     if (!Number.isFinite(quantity) || quantity <= 0) return null
+
     return {
       name,
-      calories: Math.round(calories),
-      protein: Math.round(protein * 10) / 10,
-      carbs: carbs == null ? null : Math.round(carbs * 10) / 10,
-      fat: fat == null ? null : Math.round(fat * 10) / 10,
+      calories: Math.round(caloriesRaw),
+      protein: fieldProtein === '' ? 0 : Math.round(proteinRaw * 10) / 10,
+      carbs: fieldCarbs === '' ? null : Math.round(carbsRaw * 10) / 10,
+      fat: fieldFat === '' ? null : Math.round(fatRaw * 10) / 10,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage, calForm, quantity])
@@ -336,11 +346,15 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
             ))}
           </SelectField>
 
+          {error ? (
+            <p className="mb-2 text-[12px] text-danger">{error}</p>
+          ) : null}
           <div className="grid grid-cols-2 gap-3">
             <NumberField
               label="Calories"
               suffix="kcal"
               min={0}
+              max={99999}
               placeholder="required"
               value={calForm.calories}
               onChange={(event) => setCalForm((f) => ({ ...f, calories: event.target.value }))}
@@ -349,6 +363,7 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
               label="Protein"
               suffix="g"
               min={0}
+              max={99999}
               placeholder="0"
               value={calForm.protein}
               onChange={(event) => setCalForm((f) => ({ ...f, protein: event.target.value }))}
@@ -357,6 +372,7 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
               label="Carbs"
               suffix="g"
               min={0}
+              max={99999}
               placeholder="optional"
               value={calForm.carbs}
               onChange={(event) => setCalForm((f) => ({ ...f, carbs: event.target.value }))}
@@ -365,6 +381,7 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
               label="Fat"
               suffix="g"
               min={0}
+              max={99999}
               placeholder="optional"
               value={calForm.fat}
               onChange={(event) => setCalForm((f) => ({ ...f, fat: event.target.value }))}
@@ -376,6 +393,10 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
             this is a one-off entry.
           </p>
 
+          {error ? (
+            <p className="text-[13px] text-danger">{error}</p>
+          ) : null}
+
           <QuantityStepper
             quantity={quantity}
             unit={unit}
@@ -384,6 +405,13 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
             onUnitChange={setUnit}
             quickValues={QUICK_VALUES_BY_UNIT[unit]}
           />
+
+          {!quickDraft && !busy ? (
+            <p className="text-[13px] text-danger">
+              {error ?? 'Enter a valid food name and calories from 0 to 99,999 kcal.'
+             }
+           </p>
+          ) : null}
 
           {quickDraft ? (
             <div className="rounded-2xl border border-line bg-surface-2/60 p-3.5 text-center">
@@ -396,8 +424,6 @@ export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: Add
               </p>
             </div>
           ) : null}
-
-          {error ? <p className="text-[13px] text-danger">{error}</p> : null}
 
           <div className="flex gap-2 pt-1">
             <Button

@@ -227,9 +227,6 @@ export default function DashboardPage() {
         </section>
       ) : null}
 
-      {/* Today's food ------------------------------------------------- */}
-      <DashboardFoodCard />
-
       {/* Weekly summary ---------------------------------------------- */}
       <section className="space-y-3">
         <SectionHeader title="Weekly summary" />

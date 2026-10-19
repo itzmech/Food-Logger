@@ -15,7 +15,7 @@ export function AppLayout() {
 
   // Each route starts at the top — important with a fixed bottom bar.
   useEffect(() => {
-    window.scrollTo({ top: 0 })
+    window.scrollTo({ top: 0, behavior: location.pathname ? 'instant' : 'auto' })
   }, [location.pathname])
 
   return (
@@ -24,7 +24,10 @@ export function AppLayout() {
 
       <div className="md:pl-64">
         <TopBar />
-        <main className="pb-nav mx-auto w-full max-w-3xl px-4 pt-5 md:max-w-4xl md:px-8 md:pt-8">
+        <main
+          className="pb-nav mx-auto w-full max-w-3xl px-4 pt-4 md:max-w-4xl md:px-8 md:pt-8"
+          style={{ minHeight: 'calc(100dvh - env(safe-area-inset-top))' }}
+        >
           <div key={location.pathname} className="animate-page-in">
             <Outlet />
           </div>

@@ -201,8 +201,7 @@ export default function SettingsPage() {
         </div>
       </SettingsGroup>
 
-      {/* Goals --------------------------------------------------------- */}
-      <SettingsGroup
+      {/* Goals --------------------------------------------------------- */}          <SettingsGroup
         title="Goals"
         description={
           goal
@@ -218,15 +217,15 @@ export default function SettingsPage() {
               min={1}
               max={52}
               value={goalDraft.weeks}
-              onChange={(event) =>
-                setGoalDraft((draft) => ({ ...draft, weeks: event.target.value }))
+              onChange={(ev) =>
+                setGoalDraft((draft) => ({ ...draft, weeks: ev.target.value }))
               }
             />
             <SelectField
               label="Units"
               value={settings?.units ?? 'metric'}
-              onChange={(event) =>
-                void update({ units: event.target.value as 'metric' | 'imperial' })
+              onChange={(ev) =>
+                void update({ units: ev.target.value as 'metric' | 'imperial' })
               }
               hint="Body-weight units."
             >
@@ -247,8 +246,8 @@ export default function SettingsPage() {
                 min={0}
                 placeholder="—"
                 value={goalDraft.startWeightKg}
-                onChange={(event) =>
-                  setGoalDraft((draft) => ({ ...draft, startWeightKg: event.target.value }))
+                onChange={(ev) =>
+                  setGoalDraft((draft) => ({ ...draft, startWeightKg: ev.target.value }))
                 }
               />
               <NumberField
@@ -258,8 +257,8 @@ export default function SettingsPage() {
                 min={0}
                 placeholder="—"
                 value={goalDraft.targetWeightKg}
-                onChange={(event) =>
-                  setGoalDraft((draft) => ({ ...draft, targetWeightKg: event.target.value }))
+                onChange={(ev) =>
+                  setGoalDraft((draft) => ({ ...draft, targetWeightKg: ev.target.value }))
                 }
               />
               <NumberField
@@ -269,8 +268,8 @@ export default function SettingsPage() {
                 min={0}
                 placeholder="—"
                 value={goalDraft.targetWaistCm}
-                onChange={(event) =>
-                  setGoalDraft((draft) => ({ ...draft, targetWaistCm: event.target.value }))
+                onChange={(ev) =>
+                  setGoalDraft((draft) => ({ ...draft, targetWaistCm: ev.target.value }))
                 }
               />
             </div>
@@ -287,8 +286,8 @@ export default function SettingsPage() {
                 min={0}
                 placeholder="—"
                 value={goalDraft.dailyCalories}
-                onChange={(event) =>
-                  setGoalDraft((draft) => ({ ...draft, dailyCalories: event.target.value }))
+                onChange={(ev) =>
+                  setGoalDraft((draft) => ({ ...draft, dailyCalories: ev.target.value }))
                 }
               />
               <NumberField
@@ -297,8 +296,8 @@ export default function SettingsPage() {
                 min={0}
                 placeholder="—"
                 value={goalDraft.dailyProteinG}
-                onChange={(event) =>
-                  setGoalDraft((draft) => ({ ...draft, dailyProteinG: event.target.value }))
+                onChange={(ev) =>
+                  setGoalDraft((draft) => ({ ...draft, dailyProteinG: ev.target.value }))
                 }
               />
             </div>
@@ -311,22 +310,22 @@ export default function SettingsPage() {
             <div className="grid grid-cols-2 gap-3">
               <NumberField
                 label="Workouts"
-                suffix="per week"
+                suffix="/wk"
                 min={0}
                 placeholder="—"
                 value={goalDraft.weeklyWorkouts}
-                onChange={(event) =>
-                  setGoalDraft((draft) => ({ ...draft, weeklyWorkouts: event.target.value }))
+                onChange={(e) =>
+                  setGoalDraft((draft) => ({ ...draft, weeklyWorkouts: e.target.value }))
                 }
               />
               <NumberField
                 label="Cardio"
-                suffix="min/week"
+                suffix="min/wk"
                 min={0}
                 placeholder="—"
                 value={goalDraft.weeklyCardioMinutes}
-                onChange={(event) =>
-                  setGoalDraft((draft) => ({ ...draft, weeklyCardioMinutes: event.target.value }))
+                onChange={(e2) =>
+                  setGoalDraft((draft) => ({ ...draft, weeklyCardioMinutes: e2.target.value }))
                 }
               />
             </div>

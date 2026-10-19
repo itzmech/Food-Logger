@@ -81,7 +81,7 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
       description={isEditing ? 'Change the task details.' : 'A quick task with an optional due date.'}
       className="max-h-[86dvh]"
     >
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         <TextField
           label="Task"
           value={title}
@@ -96,17 +96,17 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
           maxLength={200}
         />
 
-        <TextField
-          label="Due date (optional)"
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          id={dueId}
-          min={todayISO()}
-          hint={dueDate ? undefined : 'Leave blank for no due date'}
-        />
-
         <div className="grid grid-cols-2 gap-3">
+          <TextField
+            label="Due date (optional)"
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            id={dueId}
+            min={todayISO()}
+            hint={dueDate ? undefined : 'Leave blank for no due date'}
+          />
+
           <SelectField
             label="Priority"
             value={priority}
@@ -120,7 +120,9 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
               </option>
             ))}
           </SelectField>
+        </div>
 
+        <div className="grid grid-cols-2 gap-3">
           <SelectField
             label="Category"
             value={category}
@@ -134,22 +136,22 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
               </option>
             ))}
           </SelectField>
-        </div>
 
-        <TextField
-          label="Note (optional)"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Any details or context"
-          id={noteId}
-        />
+          <TextField
+            label="Note (optional)"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Any details"
+            id={noteId}
+          />
+        </div>
       </div>
 
       <div className="mt-5 flex gap-2">
-        <Button variant="secondary" type="button" onClick={onClose} disabled={busy}>
+        <Button variant="secondary" type="button" onClick={onClose} disabled={busy} className="touch-target">
           Cancel
         </Button>
-        <Button type="button" onClick={handleSave} disabled={busy}>
+        <Button type="button" onClick={handleSave} disabled={busy} className="touch-target">
           {busy ? 'Saving...' : isEditing ? 'Save changes' : 'Add task'}
         </Button>
       </div>

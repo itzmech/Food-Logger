@@ -34,13 +34,13 @@ export default function HistoryPage() {
 
       {/* Month navigation */}
       <Card className="stagger">
-        <div className="flex items-center justify-between rounded-2xl border border-line bg-surface-2/60 px-4 py-3">
+        <div className="flex items-center justify-between rounded-2xl border border-line bg-surface-2/60 px-3 py-2.5">
           <button
             type="button"
             onClick={() => selectMonth(month.monthKey)}
             className="
               flex h-9 w-9 items-center justify-center rounded-lg text-ink-2
-              hover:bg-surface hover:text-ink transition-colors
+              hover:bg-surface hover:text-ink transition-colors touch-target
             "
             aria-label="Previous month"
           >
@@ -61,7 +61,7 @@ export default function HistoryPage() {
             onClick={() => selectMonth(month.monthKey)}
             className="
               flex h-9 w-9 items-center justify-center rounded-lg text-ink-2
-              hover:bg-surface hover:text-ink transition-colors
+              hover:bg-surface hover:text-ink transition-colors touch-target
             "
             aria-label="Next month"
           >
@@ -69,7 +69,7 @@ export default function HistoryPage() {
           </button>
         </div>
 
-        <div className="mt-3">
+        <div className="mt-2">
           <CalendarGrid
             monthKey={month.monthKey}
             signalsByDay={month.signalsByDay}

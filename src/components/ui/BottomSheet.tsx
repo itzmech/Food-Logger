@@ -35,6 +35,7 @@ export function BottomSheet({
     if (!open) return
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    document.body.style.touchAction = 'none'
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
@@ -43,6 +44,7 @@ export function BottomSheet({
 
     return () => {
       document.body.style.overflow = previousOverflow
+      document.body.style.touchAction = ''
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [open, onClose])
@@ -50,26 +52,29 @@ export function BottomSheet({
   if (!open) return null
 
   return (
-    <>
+    <div
+      ref={panelRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={typeof title === 'string' ? title : undefined}
+      className={cn(
+        'fixed inset-0 z-50 flex items-end justify-center',
+        'bg-black/65 backdrop-blur-sm animate-fade-in',
+        className,
+      )}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
       <div
-        className="fixed inset-0 z-40 flex items-end justify-center bg-black/65 backdrop-blur-sm animate-fade-in pointer-events-none"
-        onClick={onClose}
-      />
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={typeof title === 'string' ? title : undefined}
         className={cn(
-          'fixed left-0 right-0 bottom-0 z-50 flex w-full max-w-lg justify-center rounded-t-3xl border border-b-0 border-line bg-base-raised',
-          'shadow-2xl shadow-black/60 animate-sheet-up',
-          'flex-col max-h-[88dvh] overflow-y-auto overscroll-contain',
-          className,
+          'fixed inset-0 bottom-0 w-full max-w-lg flex flex-col rounded-t-3xl border-t border-line bg-base-raised shadow-2xl shadow-black/60 animate-sheet-up',
+          'max-h-[calc(100dvh_7rem)] sm:max-h-[88dvh] overflow-y-auto overflow-x-hidden overscroll-contain',
         )}
       >
-        <div className="shrink-0 px-5 pt-3">
+        <div className="shrink-0 border-b border-line px-5 pt-3">
           <div className="mx-auto h-1 w-10 rounded-full bg-line-strong" aria-hidden="true" />
-          <div className="mt-3 flex items-start justify-between gap-3 pb-1">
+          <div className="mt-3 flex items-start justify-between gap-3 pb-2">
             <div className="min-w-0">
               {title ? (
                 <h2 className="text-base font-semibold tracking-tight text-ink">{title}</h2>
@@ -78,14 +83,19 @@ export function BottomSheet({
                 <p className="mt-0.5 text-[13px] leading-snug text-ink-3">{description}</p>
               ) : null}
             </div>
-            <IconButton icon="close" label="Close" onClick={onClose} className="-mr-2 -mt-1" />
+            <IconButton
+              icon="close"
+              label="Close"
+              onClick={onClose}
+              className="mr-2 touch-target min-h-9 min-w-9"
+            />
           </div>
         </div>
 
-        <div className="px-5 pb-5 pt-2">
+        <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-5 pt-3">
           {children}
         </div>
       </div>
-    </>
+    </div>
   )
 }

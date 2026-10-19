@@ -3,13 +3,14 @@
   "short_name": "Freebuff",
   "description": "Offline-first personal fitness, diet and progress tracker for a 12-week journey.",
   "id": "/",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0a0b10",
   "theme_color": "#0a0b10",
+  "theme_color_dark": "#0a0b10",
   "categories": ["health", "fitness", "lifestyle"],
   "lang": "en",
   "dir": "ltr",
@@ -37,14 +38,16 @@
     {
       "name": "Log food",
       "short_name": "Food",
-      "url": "/#/food",
+      "url": "/?source=pwa#/food",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Today's workout",
       "short_name": "Workout",
-      "url": "/#/workout",
+      "url": "/?source=pwa#/workout",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
 }

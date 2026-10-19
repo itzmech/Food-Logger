@@ -561,7 +561,7 @@ function AnalyticsHeader({
               key={r}
               onClick={() => onRangeChange(r)}
               className={cn(
-                'rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors duration-150',
+                'rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors duration-150 touch-target',
                 range === r
                   ? 'bg-accent-dim text-accent-strong'
                   : 'text-ink-3 hover:text-ink-2',

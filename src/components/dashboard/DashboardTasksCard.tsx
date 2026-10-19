@@ -47,7 +47,7 @@ export function DashboardTasksCard({ tasks, loading }: DashboardTasksCardProps) 
         title="Today's tasks"
         description={loading ? undefined : `${pending} pending · ${completed} done`}
         action={
-          <Button size="sm" onClick={() => setAddOpen(true)} disabled={loading || busy}>
+          <Button size="sm" onClick={() => setAddOpen(true)} disabled={loading || busy} className="touch-target">
             <Icon name="plus" size={14} />
             Add task
           </Button>
@@ -117,7 +117,7 @@ export function DashboardTasksCard({ tasks, loading }: DashboardTasksCardProps) 
       {/* View all link */}
       <Link
         to="/tasks"
-        className="flex items-center gap-1.5 text-[13px] font-medium text-accent-strong transition-colors hover:text-accent-strong/80"
+        className="flex items-center gap-1.5 text-[13px] font-medium text-accent-strong transition-colors hover:text-accent-strong/80 touch-target"
       >
         <Icon name="chevron-right" size={13} />
         View all tasks

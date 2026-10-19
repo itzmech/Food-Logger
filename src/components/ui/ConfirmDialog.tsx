@@ -43,7 +43,10 @@ export function ConfirmDialog({
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/65 p-4 backdrop-blur-sm sm:items-center"
       role="presentation"
-      onClick={onCancel}
+      onClick={(event) => {
+        // Only close on backdrop tap, not when tapping the panel.
+        if (event.target === event.currentTarget) onCancel()
+      }}
     >
       <div
         role="alertdialog"
@@ -64,7 +67,7 @@ export function ConfirmDialog({
           <Button
             ref={cancelRef}
             variant="secondary"
-            className="flex-1"
+            className="flex-1 touch-target"
             onClick={onCancel}
             disabled={busy}
           >
@@ -72,7 +75,7 @@ export function ConfirmDialog({
           </Button>
           <Button
             variant={tone === 'danger' ? 'danger' : 'primary'}
-            className="flex-1"
+            className="flex-1 touch-target"
             onClick={onConfirm}
             disabled={busy}
           >
