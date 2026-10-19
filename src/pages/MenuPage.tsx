@@ -8,6 +8,7 @@ import { MenuCalendar } from '@/components/menu/MenuCalendar'
 import { MenuMonthNav } from '@/components/menu/MenuMonthNav'
 import { AddMonthSheet } from '@/components/menu/AddMonthSheet'
 import { CopyMonthSheet } from '@/components/menu/CopyMonthSheet'
+import { MenuImportSheet } from '@/components/menu/MenuImportSheet'
 import { DayMenuSheet } from '@/components/menu/DayMenuSheet'
 import { OverrideSheet } from '@/components/menu/OverrideSheet'
 import { ItemEditModal } from '@/components/menu/ItemEditModal'
@@ -85,17 +86,19 @@ export default function MenuPage() {
         title='Mess menu'
         subtitle={menu ? monthLabel(menu.month) : 'No month selected'}
         action={
-          menus.length > 0 ? (
-            <Button size='sm' variant='secondary' onClick={() => setCurrentMonth(menus[0].month)}>
-              Switch month
-            </Button>
-          ) : null
+          <div className='flex items-center gap-2'>
+            {menus.length > 0 ? (
+              <Button size='sm' variant='secondary' onClick={() => setCurrentMonth(menus[0].month)}>
+                Switch month
+              </Button>
+            ) : null}
+            {menu ? null : (
+              <Button size='sm' variant='secondary' onClick={() => setMenuImportOpen(true)}>
+                Add menu
+              </Button>
+            )}
+          </div>
         }
-        {menu ? null : (
-          <Button size='sm' variant='secondary' onClick={() => setMenuImportOpen(true)}>
-            Add menu
-          </Button>
-        )
       />
 
       <InfoNote tone='accent' icon='check' title='Available ≠ eaten'>
@@ -134,6 +137,8 @@ export default function MenuPage() {
         onCopy={handleCopy}
       />
 
+      {menuImportOpen ? <MenuImportSheet onClose={() => setMenuImportOpen(false)} /> : null}
+
       {loading && !menu ? (
         <div className='space-y-3'>
           <div className='h-32 rounded-2xl border border-line bg-surface animate-pulse' />
@@ -144,7 +149,8 @@ export default function MenuPage() {
           <EmptyState
             icon='menu'
             title='No menu has been added for October 2026.'
-            message='Tap "Add menu" to create the month\u2019s published menu. You can paste or type each day\u2019s meals — the mess never overwrites your log.'              action={
+            message="Tap “Add menu” to create the month’s published menu. You can paste or type each day’s meals — the mess never overwrites your log."
+            action={
               <Button onClick={handleAddMonth}>Add menu</Button>
             }
           />

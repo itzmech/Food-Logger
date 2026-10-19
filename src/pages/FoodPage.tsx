@@ -11,6 +11,7 @@ import { MealSection } from '@/components/food/MealSection'
 import { MenuImportSheet } from '@/components/menu/MenuImportSheet'
 import { EditLogSheet } from '@/components/food/EditLogSheet'
 import { FoodDatabaseSheet } from '@/components/food/FoodDatabaseSheet'
+import { AddFoodSheet } from '@/components/food/AddFoodSheet'
 import { FoodActionsBridge } from '@/components/food/FoodActionsBridge'
 import { useGoals } from '@/hooks/useGoals'
 import { useFoodDay } from '@/hooks/useFoodDay'
@@ -40,6 +41,13 @@ function FoodPageBody({ date }: { date: string }) {
   const [editing, setEditing] = useState<FoodLog | null>(null)
   const [databaseOpen, setDatabaseOpen] = useState(false)
   const [menuImportOpen, setMenuImportOpen] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
+  const [addMeal, setAddMeal] = useState<MealType>('breakfast')
+
+  const openAdd = (meal: MealType) => {
+    setAddMeal(meal)
+    setAddOpen(true)
+  }
 
   const handleRemoveLog = (log: FoodLog) => {
     void remove(log.id)
@@ -182,8 +190,13 @@ function FoodPageBody({ date }: { date: string }) {
       </p>
 
       {/* Sheets -------------------------------------------------------- */}
-      <MenuImportSheet
-        onClose={() => setMenuImportOpen(false)}
+      {menuImportOpen ? <MenuImportSheet onClose={() => setMenuImportOpen(false)} /> : null}
+      <AddFoodSheet
+        open={addOpen}
+        date={date}
+        initialMeal={addMeal}
+        onClose={() => setAddOpen(false)}
+        onLogged={() => setAddOpen(false)}
       />
       <EditLogSheet
         log={editing}
@@ -196,8 +209,4 @@ function FoodPageBody({ date }: { date: string }) {
       <FoodDatabaseSheet open={databaseOpen} onClose={() => setDatabaseOpen(false)} onChanged={() => undefined} />
     </div>
   )
-}
-
-function openAdd(meal: MealType) {
-  setAddOpen(true)
 }

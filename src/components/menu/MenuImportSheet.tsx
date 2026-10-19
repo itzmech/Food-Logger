@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { cn } from '@/utils/cn'
 import { Icon } from '@/components/icons'
 
 export function MenuImportSheet({
@@ -28,6 +27,7 @@ export function MenuImportSheet({
           onChange={handleFileChange}
           className="w-full rounded px-4 py-2 text-sm font-medium text-accent-strong bg-surface-2 hover:bg-surface-3 transition-colors"
         />
+        {file ? <p className="mt-2 text-[13px] text-ink-3">Selected: {file.name}</p> : null}
       </div>
 
       <button onClick={onClose} className="flex items-center gap-2 rounded-sm px-4 py-2 text-sm font-medium text-surface bg-surface-2 hover:bg-surface-3 transition-colors">

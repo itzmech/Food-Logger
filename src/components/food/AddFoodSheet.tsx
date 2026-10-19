@@ -24,7 +24,7 @@ export interface AddFoodSheetProps {
   initialMeal: MealType
   onClose: () => void
   onLogged: () => void
-  prefillName: string
+  prefillName?: string
 }
 
 type Stage =
@@ -48,7 +48,14 @@ const QUICK_VALUES_BY_UNIT: Record<string, number[]> = {
  * Stages: search (with Quick Add chips) → log (meal, quantity, live nutrition
  * preview) → save. "New food" and "Quick add" branch off the search stage.
  */
-export function AddFoodSheet({ open, date, initialMeal, onClose, onLogged }: AddFoodSheetProps) {
+export function AddFoodSheet({
+  open,
+  date,
+  initialMeal,
+  onClose,
+  onLogged,
+  prefillName = '',
+}: AddFoodSheetProps) {
   const actions = useFoodActions()
   const { foods } = useFoods()
 
