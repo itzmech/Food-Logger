@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Icon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { BottomSheet } from '@/components/ui/BottomSheet'
@@ -38,20 +38,25 @@ export function OverrideSheet({
   const [kind, setKind] = useState<MenuOverrideKind>(existingOverride?.kind ?? 'replace')
   const [items, setItems] = useState<MenuItem[]>(existingOverride?.items ?? baseItems)
   const [reason, setReason] = useState(existingOverride?.reason ?? '')
+  const applyInFlight = useRef(false)
+
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   if (!open) return null
 
   const handleApply = () => {
-    if (kind === 'remove' && !items.every((i) => i.id)) {
+    if (applyInFlight.current) return
+    if (kind === 'remove' && items.length === 0) {
       setError('Select at least one item to remove')
       return
     }
+    applyInFlight.current = true
     setBusy(true)
     setError(null)
-    void onApply(kind, items, reason.trim() || null)
+    onApply(kind, items, reason.trim() || null)
     onClose()
+    applyInFlight.current = false
   }
 
   const handleAddItem = () => {
@@ -132,7 +137,10 @@ export function OverrideSheet({
           <div className="space-y-2">
             <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-ink-3">Select items to remove</p>
             {baseItems.filter((i) => i.status !== 'cancelled').map((item) => (
-              <label key={item.id} className="flex items-center gap-2 rounded-xl border border-line bg-surface-2/50 px-3 py-2 cursor-pointer">
+              <label
+                key={item.id}
+                className="flex items-center gap-2 rounded-xl border border-line bg-surface-2/50 px-3 py-2 cursor-pointer touch-target"
+              >
                 <input
                   type="checkbox"
                   checked={items.some((i) => i.id === item.id)}
@@ -158,6 +166,11 @@ export function OverrideSheet({
             {kind === 'replace'
               ? `Replaces the ${baseItems.length > 0 ? 'published' : 'empty'} meal with ${items.length} item(s)`
               : `Adds ${items.length} additional item(s)`}
+          </p>
+        ) : null}
+        {kind === 'remove' && items.length > 0 && items.every((i) => i.id) ? (
+          <p className="text-[12px] text-ink-3">
+            Removing {items.length} item(s) from the published meal.
           </p>
         ) : null}
 

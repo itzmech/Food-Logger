@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Icon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/Field'
@@ -21,6 +21,7 @@ export function ExerciseLibrary() {
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState<{ id: string; values: { name: string; category: string; equipment: string; equipmentOptions: string[]; defaultEquipment: string; notes: string } } | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const deleteInFlight = useRef(false)
 
   const categoryToKey = (label: string): string => {
     const entries = Object.entries(EXERCISE_CATEGORY_LABELS as Record<string, string>)
@@ -85,14 +86,19 @@ export function ExerciseLibrary() {
 
   const handleDelete = useCallback(async () => {
     if (!deleting) return
-    const ex = exercises.find((e) => e.id === deleting)
-    if (ex && ex.builtIn) {
-      // Built-in catalog exercises cannot be deleted.
+    if (deleteInFlight.current) return
+    deleteInFlight.current = true
+    try {
+      const ex = exercises.find((e) => e.id === deleting)
+      if (ex && ex.builtIn) {
+        setDeleting(null)
+        return
+      }
+      await remove(deleting)
       setDeleting(null)
-      return
+    } finally {
+      deleteInFlight.current = false
     }
-    await remove(deleting)
-    setDeleting(null)
   }, [deleting, exercises, remove])
 
   const filteredCount = filtered.length
@@ -124,7 +130,7 @@ export function ExerciseLibrary() {
             key={cat}
             type="button"
             className={cn(
-              'rounded-xl border px-3 py-1.5 text-[13px] font-medium transition-colors',
+              'rounded-xl border px-3 py-1.5 text-[13px] font-medium min-h-[44px] transition-colors',
               category === cat
                 ? 'border-accent/40 bg-accent-dim text-accent-strong'
                 : 'border-line bg-surface-2 text-ink-3 hover:border-line-strong hover:text-ink-2'

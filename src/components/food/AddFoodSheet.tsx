@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Icon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -57,6 +57,8 @@ export function AddFoodSheet({
   prefillName = '',
 }: AddFoodSheetProps) {
   const actions = useFoodActions()
+  const addFromFoodInFlight = useRef(false)
+  const addManualInFlight = useRef(false)
   const { foods } = useFoods()
 
   const [stage, setStage] = useState<Stage>({ name: 'search' })
@@ -117,6 +119,8 @@ export function AddFoodSheet({
 
   const handleLogFood = async () => {
     if (!logStage || !scaled?.ok) return
+    if (addFromFoodInFlight.current) return
+    addFromFoodInFlight.current = true
     setBusy(true)
     setError(null)
     try {
@@ -127,6 +131,7 @@ export function AddFoodSheet({
       setError(cause instanceof Error ? cause.message : 'Could not log this food.')
     } finally {
       setBusy(false)
+      addFromFoodInFlight.current = false
     }
   }
 
@@ -178,6 +183,8 @@ export function AddFoodSheet({
 
   const handleQuickLog = async () => {
     if (!quickDraft) return
+    if (addManualInFlight.current) return
+    addManualInFlight.current = true
     setBusy(true)
     setError(null)
     try {
@@ -199,6 +206,7 @@ export function AddFoodSheet({
       setError(cause instanceof Error ? cause.message : 'Could not log this food.')
     } finally {
       setBusy(false)
+      addManualInFlight.current = false
     }
   }
 

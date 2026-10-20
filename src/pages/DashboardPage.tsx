@@ -183,49 +183,6 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* Daily activity summary -------------------------------------- */}
-      {s && (s.today.activity.loggedActivities > 0 || s.today.activity.estimatedCalories != null) ? (
-        <section className="space-y-3">
-          <SectionHeader title="Today's activity" />
-          <Card className="stagger">
-            <div className="flex divide-x divide-line">
-              <StatTile
-                label="Cardio"
-                value={formatMinutes(s.today.activity.cardioMinutes)}
-                suffix={`${s.today.activity.cardioSessions} ${s.today.activity.cardioSessions === 1 ? 'session' : 'sessions'}`}
-              />
-              <StatTile
-                label="Workouts"
-                value={formatNumber(s.today.activity.workoutsCompleted)}
-              />
-              <StatTile
-                label="Activities logged"
-                value={formatNumber(s.today.activity.loggedActivities)}
-              />
-              <StatTile
-                label="Est. calories"
-                value={
-                  s.today.activity.estimatedCalories != null
-                    ? `~${formatCalories(s.today.activity.estimatedCalories)} kcal`
-                    : '—'
-                }
-              />
-            </div>
-            {s.today.activity.estimatedCalories != null ? (
-              <p className="mt-3 border-t border-line pt-3 text-[12px] text-ink-3">
-                Estimated activity calories are derived from activity type,
-                duration, your weight and any distance/speed/incline —
-                rounded, never measured.
-              </p>
-            ) : (
-              <p className="mt-3 border-t border-line pt-3 text-[12px] text-ink-3">
-                Log your weight to enable calorie estimates for today's
-                activity.
-              </p>
-            )}
-          </Card>
-        </section>
-      ) : null}
 
       {/* Weekly summary ---------------------------------------------- */}
       <section className="space-y-3">

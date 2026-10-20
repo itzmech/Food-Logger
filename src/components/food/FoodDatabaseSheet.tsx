@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Icon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -57,7 +57,11 @@ export function FoodDatabaseSheet({ open, onClose, onChanged }: FoodDatabaseShee
     }
   }
 
+  const deleteInFlight = useRef(false)
+
   const handleDelete = async (food: Food) => {
+    if (deleteInFlight.current) return
+    deleteInFlight.current = true
     setBusy(true)
     setError(null)
     try {
@@ -69,10 +73,13 @@ export function FoodDatabaseSheet({ open, onClose, onChanged }: FoodDatabaseShee
       setError(cause instanceof Error ? cause.message : 'Could not delete this food.')
     } finally {
       setBusy(false)
+      deleteInFlight.current = false
     }
   }
 
   const handleDeleteSeeds = async () => {
+    if (deleteInFlight.current) return
+    deleteInFlight.current = true
     setBusy(true)
     setError(null)
     try {
@@ -83,6 +90,7 @@ export function FoodDatabaseSheet({ open, onClose, onChanged }: FoodDatabaseShee
       setError(cause instanceof Error ? cause.message : 'Could not remove sample foods.')
     } finally {
       setBusy(false)
+      deleteInFlight.current = false
     }
   }
 

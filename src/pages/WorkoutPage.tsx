@@ -70,10 +70,11 @@ export default function WorkoutPage() {
                   : 'Log walks, runs, rides'}
           </p>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto">
           <Button
             variant={view === 'log' ? 'primary' : 'secondary'}
             size="sm"
+            className="min-h-[44px]"
             onClick={() => setView('log')}
           >
             <Icon name="workout" size={15} />
@@ -82,6 +83,7 @@ export default function WorkoutPage() {
           <Button
             variant={view === 'library' ? 'primary' : 'secondary'}
             size="sm"
+            className="min-h-[44px]"
             onClick={() => setView('library')}
           >
             <Icon name="dumbbell" size={15} />
@@ -90,6 +92,7 @@ export default function WorkoutPage() {
           <Button
             variant={view === 'cardio' ? 'primary' : 'secondary'}
             size="sm"
+            className="min-h-[44px]"
             onClick={() => setView('cardio')}
           >
             <Icon name="cardio" size={15} />
@@ -98,6 +101,7 @@ export default function WorkoutPage() {
           <Button
             variant={view === 'plan' ? 'primary' : 'secondary'}
             size="sm"
+            className="min-h-[44px]"
             onClick={() => setView('plan')}
           >
             <Icon name="calendar" size={15} />
@@ -105,6 +109,7 @@ export default function WorkoutPage() {
           </Button>
         </div>
       </header>
+      <div className="h-2"></div>
 
       {view === 'log' && (
         <DailyLogView date={selectedDate} onDateChange={setSelectedDate} />

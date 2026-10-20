@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Icon } from '@/components/icons'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Card } from '@/components/ui/Card'
+import { cn } from '@/utils/cn'
 import { FoodActionsBridge } from '@/components/food/FoodActionsBridge'
 import { AddFoodSheet } from '@/components/food/AddFoodSheet'
 import { EditLogSheet } from '@/components/food/EditLogSheet'
@@ -85,7 +86,9 @@ function DashboardFoodCardInner({
                 type="button"
                 onClick={() => openAdd(group.meal)}
                 aria-label={`Add food to ${MEAL_LABELS[group.meal]}`}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-dashed border-line-strong text-ink-3 transition-colors hover:border-accent/50 hover:text-accent-strong"
+                className={cn(
+                  'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-dashed border-line-strong text-ink-3 transition-colors hover:border-accent/50 hover:text-accent-strong',
+                )}
               >
                 <Icon name="plus" size={13} />
               </button>

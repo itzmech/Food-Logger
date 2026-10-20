@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import { IconButton } from '@/components/ui/IconButton'
 import { cn } from '@/utils/cn'
@@ -11,16 +12,23 @@ export interface BottomSheetProps {
   children: ReactNode
   /** Extra classes for the panel (e.g. max height). */
   className?: string
+  tabIndex?: number
 }
 
-/**
- * Mobile-first bottom sheet.
- *
- * Scroll locking uses `overflow:hidden` on <body> (position:fixed tricks
- * fight the keyboard on Android). The sheet itself scrolls, and the viewport
- * is declared with `interactive-widget=resizes-content` so the Android
- * keyboard shrinks the layout instead of covering the form.
- */
+export interface BottomSheetFocusProps extends BottomSheetProps {
+  /** When true, the panel focus behavior is suppressed so callers can use their
+   * own focus restoration without a second focus event from the sheet.
+   */
+  suppressAutoFocus?: boolean
+}  /**
+   * Mobile-first bottom sheet.
+   *
+   * The sheet is rendered through a portal to `document.body` so the overlay
+   * resolves against the true viewport regardless of animated route wrappers or
+   * other transformed ancestors. The panel scrolls independently, the footer is
+   * held sticky, and the Android / iOS keyboard shrinks the viewport without
+   * covering the form.
+   */
 export function BottomSheet({
   open,
   onClose,
@@ -28,48 +36,102 @@ export function BottomSheet({
   description,
   children,
   className,
+  tabIndex,
 }: BottomSheetProps) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const previousOverflow = useRef<string | null>(null)
+  const previousTouchAction = useRef<string | null>(null)
+  const lastFocused = useRef<HTMLElement | null>(null)
+  const [initialMounted, setInitialMounted] = useState(false)
+
+  useEffect(() => {
+    // After body scroll is locked, scroll the topedge into view so a sheet
+    // opened from a scrolled page does not start with its header below the
+    // fold of the visible overlay.
+    if (open) {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+
+    // Focus the sheet panel itself once the portal is in the document so the
+    // sheet is the logical focus surface while it is open. Internal inputs
+    // and buttons take precedence on interaction, so this is a safe fallback.
+    const panel = panelRef.current
+    if (!panel) return
+
+    // Defer so the panel is already in the DOM and visible under pointer events.
+    requestAnimationFrame(() => {
+      panel.focus()
+    })
+  }, [open])
 
   useEffect(() => {
     if (!open) return
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    document.body.style.touchAction = 'none'
+
+    lastFocused.current = document.activeElement as HTMLElement | null
+
+    const el = document.body
+    previousOverflow.current = el.style.overflow
+    previousTouchAction.current = el.style.touchAction
+
+    el.style.overflow = 'hidden'
+    el.style.touchAction = 'none'
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        event.stopPropagation()
+        onClose()
+      }
     }
-    window.addEventListener('keydown', onKeyDown)
+
+    window.addEventListener('keydown', onKeyDown, true)
 
     return () => {
-      document.body.style.overflow = previousOverflow
-      document.body.style.touchAction = ''
-      window.removeEventListener('keydown', onKeyDown)
+      el.style.overflow = previousOverflow.current ?? ''
+      el.style.touchAction = previousTouchAction.current ?? ''
+      window.removeEventListener('keydown', onKeyDown, true)
+
+      if (lastFocused.current && typeof lastFocused.current.focus === 'function') {
+        const el = lastFocused.current
+        lastFocused.current = null
+        requestAnimationFrame(() => el.focus({ preventScroll: true }))
+      }
     }
   }, [open, onClose])
 
   if (!open) return null
 
-  return (
+  // Delay the portal render by one commit so the browser never auto-scrolls
+  // toward a potentially off-screen panel before the sheet animation begins.
+  // The first render is an inert placeholder; the real portal follows on the
+  // next render.
+  if (!initialMounted) {
+    setInitialMounted(true)
+    return
+  }
+
+  const sheet = (
     <div
       ref={panelRef}
       role="dialog"
       aria-modal="true"
       aria-label={typeof title === 'string' ? title : undefined}
+      tabIndex={tabIndex ?? 0}
       className={cn(
-        'fixed inset-0 z-50 flex items-end justify-center',
+        'fixed inset-0 z-[60] flex items-end justify-center',
         'bg-black/65 backdrop-blur-sm animate-fade-in',
         className,
       )}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose()
-      }}
     >
       <div
         className={cn(
-          'fixed inset-0 bottom-0 w-full max-w-lg flex flex-col rounded-t-3xl border-t border-line bg-base-raised shadow-2xl shadow-black/60 animate-sheet-up',
-          'max-h-[calc(100dvh_7rem)] sm:max-h-[88dvh] overflow-y-auto overflow-x-hidden overscroll-contain',
+          'fixed inset-0 bottom-0 w-full h-full max-w-lg flex flex-col rounded-t-3xl border-t border-line bg-base-raised shadow-2xl shadow-black/60 animate-sheet-up',
+          'max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-1rem)] overflow-y-auto overflow-x-hidden overscroll-contain',
         )}
       >
         <div className="shrink-0 border-b border-line px-5 pt-3">
@@ -87,7 +149,9 @@ export function BottomSheet({
               icon="close"
               label="Close"
               onClick={onClose}
-              className="mr-2 touch-target min-h-9 min-w-9"
+              className="mr-2 touch-target"
+              aria-label="Close sheet"
+              type="button"
             />
           </div>
         </div>
@@ -95,7 +159,15 @@ export function BottomSheet({
         <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden overscroll-contain px-5 pb-5 pt-3">
           {children}
         </div>
+
+        <div
+          className="sticky bottom-0 shrink-0 border-t border-line whitespace-nowrap bg-base-raised/90 backdrop-blur-sm px-5 py-3"
+          aria-hidden="true"
+        >
+          <div className="h-1 w-10 mx-auto rounded-full bg-line/40" />
+        </div>
       </div>
     </div>
   )
+  return createPortal(sheet, document.body)
 }
