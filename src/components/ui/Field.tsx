@@ -3,7 +3,7 @@ import { useId } from 'react'
 import { cn } from '@/utils/cn'
 
 const CONTROL =
-  'w-full rounded-xl border border-line bg-surface-2 px-3 text-sm text-ink placeholder:text-ink-3 transition-colors focus:border-accent/70 focus:outline-none disabled:opacity-50'
+  'w-full rounded-xl border border-line bg-surface-2 px-3 text-base text-ink placeholder:text-ink-3 transition-colors focus:border-accent/70 focus:outline-none disabled:opacity-50'
 
 interface FieldShellProps {
   label: string

@@ -86,6 +86,27 @@ export {
   saveDayPlan,
   deleteDayPlan,
 } from './strengthLogQueries'
+export {
+  listHabits,
+  listHabitsByCategory,
+  getHabit,
+  createHabit,
+  updateHabit,
+  deleteHabit,
+  toggleHabitActive,
+  getHabitLog,
+  listHabitLogsForHabit,
+  listHabitLogsForDate,
+  upsertHabitLog,
+  deleteHabitLog,
+  markHabitSkipped,
+  markHabitCompleted,
+  markHabitNotDone,
+  getStreakSkip,
+  setStreakSkip,
+  deleteStreakSkip,
+  listStreakSkipsForCategory,
+} from './habitQueries'
 export type { CardioDraft, MeasurementDraft } from './queries'
 
 export { createDefaultGoal, createDefaultSettings } from './defaults'

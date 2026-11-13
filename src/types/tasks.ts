@@ -48,6 +48,10 @@ export interface Task extends Timestamped {
   title: string
   /** Local `YYYY-MM-DD` day key, or empty when no due date set. */
   dueDate: ISODate
+  /** Optional start date for a date range (inclusive). */
+  startDate: ISODate | ''
+  /** Optional end date for a date range (inclusive). Treated as the due date when startDate is empty. */
+  endDate: ISODate | ''
   priority: TaskPriority
   status: TaskStatus
   /** Optional free-text category. Stored lowercase for consistency. */
@@ -57,5 +61,5 @@ export interface Task extends Timestamped {
 
 export type TaskDraft = Pick<
   Task,
-  'title' | 'dueDate' | 'priority' | 'category' | 'note'
+  'title' | 'dueDate' | 'startDate' | 'endDate' | 'priority' | 'category' | 'note'
 >

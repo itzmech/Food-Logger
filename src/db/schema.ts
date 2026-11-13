@@ -12,7 +12,7 @@ export const DB_NAME = 'freebuff-fitness'
  * Bump when `STORE_SCHEMAS` changes. Future migrations live in
  * `database.ts → applySchema` (switch on `oldVersion`).
  */
-export const DB_VERSION = 11
+export const DB_VERSION = 13
 export interface IndexSchema {
   name: string
   keyPath: string | string[]
@@ -53,6 +53,9 @@ export const STORE_NAMES = [
   'dailyStrengthLogs',
   'dayPlans',
   'tasks',
+  'habits',
+  'habitLogs',
+  'streakSkips',
 ] as const
 export type StoreName = (typeof STORE_NAMES)[number]
 
@@ -237,6 +240,32 @@ export const STORE_SCHEMAS: StoreSchema[] = [
       { name: 'dueDate', keyPath: 'dueDate' },
       { name: 'dueDate+status', keyPath: ['dueDate', 'status'] },
       { name: 'category', keyPath: 'category' },
+    ],
+  },
+  {
+    name: 'habits',
+    keyPath: 'id',
+    indexes: [
+      { name: 'category', keyPath: 'category' },
+      { name: 'active', keyPath: 'active' },
+    ],
+  },
+  {
+    name: 'habitLogs',
+    keyPath: 'id',
+    indexes: [
+      { name: 'habitId', keyPath: 'habitId' },
+      { name: 'date', keyPath: 'date' },
+      { name: 'habitId+date', keyPath: ['habitId', 'date'], unique: true },
+      { name: 'status', keyPath: 'status' },
+    ],
+  },
+  {
+    name: 'streakSkips',
+    keyPath: 'id',
+    indexes: [
+      { name: 'category', keyPath: 'category' },
+      { name: 'category+date', keyPath: ['category', 'date'], unique: true },
     ],
   },
 ]
@@ -428,4 +457,7 @@ export const RECORD_MIGRATIONS: Record<StoreName, RecordMigration[]> = {
   ],
   dayPlans: [],
   tasks: [],
+  habits: [],
+  habitLogs: [],
+  streakSkips: [],
 }

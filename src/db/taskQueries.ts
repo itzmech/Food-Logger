@@ -23,6 +23,8 @@ export async function createTask(draft: TaskDraft): Promise<Task> {
     id: newId(),
     title: draft.title.trim(),
     dueDate: draft.dueDate ?? '',
+    startDate: draft.startDate ?? '',
+    endDate: draft.endDate ?? '',
     priority: draft.priority ?? 'medium',
     status: 'pending',
     category: draft.category ?? 'other',
@@ -71,19 +73,25 @@ export async function deleteTask(id: ID): Promise<void> {
  * - dueToday: due on `day` and not completed
  * - overdue: due before `day`, not completed, and (no due date) never
  *   (items with no due date are never "overdue")
- * - upcoming: due after `day` and not completed, within the next 14 days
+ * - upcoming: a future start or end date, not completed
  * - completedToday: completed on `day` (kept for the day's history)
  */
 export async function groupTasksForDay(
   day: ISODate,
-): Promise<{
+): Promise<TasksForDay> {
+  return groupTasksByDate(await listTasks(), day)
+}
+
+export interface TasksForDay {
   dueToday: Task[]
   overdue: Task[]
   upcoming: Task[]
   completedToday: Task[]
   allPending: Task[]
-}> {
-  const all = await listTasks()
+}
+
+/** Group existing task records by their local-date relationship to `day`. */
+export function groupTasksByDate(all: Task[], day: ISODate): TasksForDay {
   const dueToday: Task[] = []
   const overdue: Task[] = []
   const upcoming: Task[] = []
@@ -92,31 +100,49 @@ export async function groupTasksForDay(
 
   for (const task of all) {
     if (task.status === 'completed') {
-      if (task.dueDate === day) completedToday.push(task)
+      if ((task.endDate || task.dueDate) === day) completedToday.push(task)
       continue
     }
 
     allPending.push(task)
 
-    if (task.dueDate === '') {
+    const startDate = task.startDate || ''
+    const endDate = task.endDate || ''
+    const dueDate = endDate || task.dueDate || ''
+
+    if (startDate && day < startDate) {
+      upcoming.push(task)
+      continue
+    }
+
+    if (!startDate && !dueDate) {
       // No due date — never overdue, not "due today".
       continue
     }
 
-    if (task.dueDate === day) {
+    if (startDate && dueDate && day >= startDate && day <= dueDate) {
       dueToday.push(task)
       continue
     }
 
-    if (task.dueDate < day) {
+    if (!startDate && dueDate === day) {
+      dueToday.push(task)
+      continue
+    }
+
+    if (dueDate && dueDate < day) {
       overdue.push(task)
       continue
     }
 
-    // Upcoming: due after today, within 14 days.
-    const diff = dateDiff(task.dueDate, day)
-    if (diff > 0 && diff <= 14) {
+    // Upcoming dates are visible beyond the 14-day dashboard window.
+    if (dueDate && dueDate > day) {
       upcoming.push(task)
+      continue
+    }
+
+    if (startDate && !dueDate && day >= startDate) {
+      dueToday.push(task)
     }
   }
 
@@ -134,19 +160,16 @@ function byPriorityThenDate(a: Task, b: Task): number {
   const pa = TASK_PRIORITIES_ORDER[a.priority] ?? 99
   const pb = TASK_PRIORITIES_ORDER[b.priority] ?? 99
   if (pa !== pb) return pa - pb
-  if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate)
-  if (a.dueDate) return -1
-  if (b.dueDate) return 1
+  const dateA = a.endDate || a.dueDate || a.startDate
+  const dateB = b.endDate || b.dueDate || b.startDate
+  if (dateA && dateB) return dateA.localeCompare(dateB)
+  if (dateA) return -1
+  if (dateB) return 1
   return b.createdAt.localeCompare(a.createdAt)
 }
 
 function byCreatedAtDesc(a: Task, b: Task): number {
   return b.createdAt.localeCompare(a.createdAt)
-}
-
-function dateDiff(a: ISODate, b: ISODate): number {
-  const ms = new Date(a).getTime() - new Date(b).getTime()
-  return Math.round(ms / 86_400_000)
 }
 
 /** Returns tasks that are due today and not completed (quick access from Dashboard). */

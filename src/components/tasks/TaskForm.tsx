@@ -6,8 +6,6 @@ import { Button } from '@/components/ui/Button'
 import { useId } from 'react'
 import type { Task, TaskDraft, TaskPriority, TaskCategory } from '@/types'
 import {
-  TASK_PRIORITY_LABELS,
-  TASK_PRIORITIES,
   TASK_CATEGORIES,
   TASK_CATEGORY_LABELS,
 } from '@/types'
@@ -25,12 +23,16 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
   const id = useId()
   const titleId = `${id}-title`
   const dueId = `${id}-due`
+  const startId = `${id}-start`
+  const endId = `${id}-end`
   const priorityId = `${id}-priority`
   const categoryId = `${id}-category`
   const noteId = `${id}-note`
 
   const [title, setTitle] = useState('')
   const [dueDate, setDueDate] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
   const [category, setCategory] = useState<TaskCategory>('other')
   const [note, setNote] = useState('')
@@ -41,6 +43,8 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
     if (task && task.id) {
       setTitle(task.title)
       setDueDate(task.dueDate || '')
+      setStartDate(task.startDate || '')
+      setEndDate(task.endDate || '')
       setPriority(task.priority)
       setCategory(task.category)
       setNote(task.note ?? '')
@@ -48,6 +52,8 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
     } else {
       setTitle('')
       setDueDate('')
+      setStartDate('')
+      setEndDate('')
       setPriority('medium')
       setCategory('other')
       setNote('')
@@ -63,15 +69,44 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
       setError('Enter a task title')
       return
     }
+    // Validate end date is not before start date
+    if (endDate && startDate && endDate < startDate) {
+      setError('End date cannot be before start date')
+      return
+    }
     setError(null)
-    await onSave({
-      title: trimmed,
-      dueDate: dueDate || '',
-      priority,
-      category,
-      note: note.trim() || null,
-    })
+    try {
+      await onSave({
+        title: trimmed,
+        dueDate: dueDate || '',
+        startDate: startDate || '',
+        endDate: endDate || '',
+        priority,
+        category,
+        note: note.trim() || null,
+      })
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not save this task.')
+    }
   }
+
+  const priorityOptions = [
+    { value: 'high' as TaskPriority, label: 'High' },
+    { value: 'medium' as TaskPriority, label: 'Medium' },
+    { value: 'low' as TaskPriority, label: 'Low' },
+  ]
+
+  const priorityChipClass = (p: TaskPriority) => {
+    switch (p) {
+      case 'high':
+        return 'priority-chip high';
+      case 'medium':
+        return 'priority-chip medium';
+      case 'low':
+        return 'priority-chip low';
+    }
+  }
+
 
   return (
     <BottomSheet
@@ -81,7 +116,7 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
       description={isEditing ? 'Change the task details.' : 'A quick task with an optional due date.'}
       className="max-h-[86dvh]"
     >
-      <div className="space-y-3.5">
+      <div className="space-y-4.5">
         <TextField
           label="Task"
           value={title}
@@ -107,20 +142,44 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
             hint={dueDate ? undefined : 'Leave blank for no due date'}
           />
 
-          <SelectField
-            label="Priority"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as TaskPriority)}
-            id={priorityId}
-            error={error ?? undefined}
-          >
-            {TASK_PRIORITIES.map((p) => (
-              <option key={p} value={p}>
-                {TASK_PRIORITY_LABELS[p]}
-              </option>
-            ))}
-          </SelectField>
+          <TextField
+            label="Start date (optional)"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            id={startId}
+            min={todayISO()}
+            hint={startDate ? undefined : 'Leave blank for no start date'}
+          />
+
+          <TextField
+            label="End date (optional)"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            id={endId}
+            min={todayISO()}
+            hint={endDate ? undefined : 'Leave blank for no end date'}
+          />
         </div>
+
+        <fieldset id={priorityId} className="space-y-2">
+          <legend className="text-[12px] font-medium uppercase tracking-[0.08em] text-ink-3">Priority</legend>
+          <div className="grid grid-cols-3 gap-2">
+            {priorityOptions.map((option) => (
+              <Button
+                key={option.value}
+                variant="ghost"
+                className={`${priorityChipClass(option.value)} min-h-11 ${priority === option.value ? 'ring-1 ring-accent/60' : ''}`}
+                type="button"
+                onClick={() => setPriority(option.value)}
+                aria-pressed={priority === option.value}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </fieldset>
 
         <div className="grid grid-cols-2 gap-3">
           <SelectField
@@ -145,6 +204,10 @@ export function TaskForm({ open, onClose, onSave, task, busy = false }: TaskForm
             id={noteId}
           />
         </div>
+
+        {error && (
+          <div className="mt-2 text-[12px] text-danger">{error}</div>
+        )}
       </div>
 
       <div className="mt-5 flex gap-2">

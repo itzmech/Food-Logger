@@ -16,6 +16,7 @@ import type {
   CompletedWorkoutExercise,
   CompletedWorkoutSet,
 } from '@/types'
+import type { Habit, HabitLog } from '@/types/habit'
 import type {
   BodyMeasurement,
   CardioSession,
@@ -59,6 +60,16 @@ export const completedWorkoutSetsRepo = createRepository<CompletedWorkoutSet>('c
 export const dailyStrengthLogsRepo = createRepository<DailyStrengthLog>('dailyStrengthLogs')
 export const dayPlansRepo = createRepository<DayPlan>('dayPlans')
 export const tasksRepo = createRepository<Task>('tasks')
+export const habitsRepo = createRepository<Habit>('habits')
+export const habitLogsRepo = createRepository<HabitLog>('habitLogs')
+
+export interface StreakSkip {
+  id: string
+  category: string
+  date: string
+  createdAt: string
+}
+export const streakSkipsRepo = createRepository<StreakSkip>('streakSkips')
 
 /**
  * NOTE: the exercise library store is intentionally not created yet - it

@@ -89,6 +89,20 @@ export {
 } from './tasks'
 
 export type {
+  Habit,
+  HabitLog,
+  HabitCategory,
+  HabitSchedule,
+} from './habit'
+export {
+  HABIT_CATEGORIES,
+  HABIT_CATEGORY_LABELS,
+  HABIT_SCHEDULES,
+  HABIT_SCHEDULE_LABELS,
+  HABIT_COLORS,
+} from './habit'
+
+export type {
   Workout,
   WorkoutStatus,
 } from './workout'

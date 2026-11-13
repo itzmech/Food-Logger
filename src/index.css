@@ -2,24 +2,39 @@
 
 @theme {
   /* ------------------------------------------------------------------ */
-  /* Palette: restrained dark system, single violet accent.              */
+  /* Palette: dark-only, section accent colors.                         */
   /* ------------------------------------------------------------------ */
-  --color-base: #0a0b10;
-  --color-base-raised: #0d0e15;
-  --color-surface: #101219;
-  --color-surface-2: #171a24;
-  --color-overlay: #1c2030;
-  --color-line: #1e2230;
-  --color-line-strong: #2c3244;
+  --color-base: #080F14;
+  --color-base-raised: #141A22;
+  --color-surface: #1B2430;
+  --color-surface-2: #212A38;
+  --color-overlay: #1F293B;
+  --color-line: #374151;
+  --color-line-strong: #4B5563;
 
-  --color-ink: #f2f4fa;
-  --color-ink-2: #a6aec0;
-  --color-ink-3: #6e7688;
+  --color-ink: #F4F7FB;
+  --color-ink-2: #9AAAB2;
+  --color-ink-3: #6B7280;
 
-  --color-accent: #8b5cf6;
-  --color-accent-strong: #a78bfa;
-  --color-accent-deep: #7c3aed;
-  --color-accent-dim: #8b5cf624;
+  --color-accent: #8B5CF6;
+  --color-accent-strong: #A78BF7;
+  --color-accent-dim: #8B5CF61a;
+
+  /* Section accent colors */
+  --color-food: #FF6A30;
+  --color-food-dim: #FF6A301a;
+  --color-workout: #3882F6;
+  --color-workout-dim: #3882F61a;
+  --color-tasks: #8855F6;
+  --color-tasks-dim: #8855F61a;
+  --color-progress: #22C55E;
+  --color-progress-dim: #22C55E1a;
+  --color-high: #FF4D4F;
+  --color-high-dim: #FF4D4F1a;
+  --color-medium: #F59E0B;
+  --color-medium-dim: #F59E0B1a;
+  --color-low: #22C55E;
+  --color-low-dim: #22C55E1a;
 
   --color-success: #34d399;
   --color-success-dim: #34d3991f;
@@ -28,9 +43,20 @@
   --color-danger: #fb7185;
   --color-danger-dim: #fb71851f;
 
+  /* Streak tiers */
+  --color-tier-bronze: #CD7F32;
+  --color-tier-bronze-dim: #CD7F3233;
+  --color-tier-silver: #94A3B8;
+  --color-tier-silver-dim: #94A3B833;
+  --color-tier-gold: #F59E0B;
+  --color-tier-gold-dim: #F59E0B33;
+  --color-tier-diamond: #A78BF7;
+  --color-tier-diamond-dim: #A78BF733;
+
   --font-sans:
     'Inter', 'Segoe UI', system-ui, -apple-system, 'Roboto', 'Helvetica Neue',
     'Noto Sans', sans-serif;
+  --font-heading: 'Poppins', var(--font-sans);
 
   --animate-page-in: page-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-rise: rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -108,6 +134,15 @@
     overscroll-behavior-y: none;
     /* Prevent pull-to-refresh and double-tap zoom on the app shell. */
     touch-action: pan-y pan-left pan-right;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
   }
 
   /* Mobile: disable double-tap zoom on interactive controls that already
@@ -203,5 +238,129 @@
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Accent color utilities per section */
+  .accent-food { color: var(--color-food); }
+  .accent-food-icon { --color-food: var(--color-food); }
+  .accent-workout { color: var(--color-workout); }
+  .accent-workout-icon { --color-workout: var(--color-workout); }
+  .accent-tasks { color: var(--color-tasks); }
+  .accent-tasks-icon { --color-tasks: var(--color-tasks); }
+  .accent-progress { color: var(--color-progress); }
+  .accent-progress-icon { --color-progress: var(--color-progress); }
+
+  /* Progress ring */
+  .progress-ring {
+    --progress: 0;
+    --progress-min: 0;
+    --progress-max: 100;
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--color-progress-dim);
+    border-top: 4px solid var(--color-progress);
+    border-radius: 50%;
+    animation: progress-spin var(--progress-animation-duration, 1s) linear infinite;
+    transform: rotate(calc(var(--progress) * 3.6deg));
+  }
+  @keyframes progress-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress-ring {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  /* Button press scale */
+  button:active {
+    transform: scale(0.96);
+    transition: transform 150ms ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    button:active {
+      transition: none;
+    }
+  }
+
+  /* Bottom sheet slide-up */
+  .sheet-up {
+    animation: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sheet-up {
+      animation: none;
+    }
+  }
+
+  /* Check animation on task complete */
+  .check-mark {
+    stroke-dasharray: 16px;
+    stroke-dashoffset: 16px;
+    animation: check-fill 180ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  @keyframes check-fill {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .check-mark {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Priority chip styles */
+  .priority-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .priority-chip.high {
+    background: var(--color-high);
+    color: white;
+  }
+  .priority-chip.medium {
+    background: var(--color-medium);
+    color: #1e293b;
+  }
+  .priority-chip.low {
+    background: var(--color-low);
+    color: white;
+  }
+
+  .focus-visible-ring {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  .focus-visible-ring.priority-high {
+    outline: 2px solid var(--color-high);
+    outline-offset: 2px;
+  }
+  .focus-visible-ring.priority-medium {
+    outline: 2px solid var(--color-medium);
+    outline-offset: 2px;
+  }
+  .focus-visible-ring.priority-low {
+    outline: 2px solid var(--color-low);
+    outline-offset: 2px;
   }
 }

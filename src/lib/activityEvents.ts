@@ -17,6 +17,7 @@ export type ActivityChangeReason =
   | 'strength-exercise-skipped'
   | 'strength-exercise-unskipped'
   | 'day-plan-saved'
+  | 'habits-changed'
 
 const EVENT_NAME = 'freebuff:activity-changed'
 
