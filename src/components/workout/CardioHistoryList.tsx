@@ -5,42 +5,25 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/icons'
 import { useCardio } from '@/hooks/useCardio'
-import { useLatestWeight } from '@/hooks/useLatestWeight'
 import { CARDIO_TYPE_LABELS } from '@/types'
 import type { CardioSession } from '@/types'
-import { estimateSessionCalories } from '@/lib/activityEstimate'
 import { formatShortDate, todayISO } from '@/utils/date'
-import { formatCalories, formatMinutes, formatNumber } from '@/utils/format'
+import { formatMinutes, formatNumber } from '@/utils/format'
 
-/**
- * Recent cardio sessions (today first).
- *
- * Every calorie figure here is a DERIVED estimate, always
- * labeled as such with its basis. Manually-entered calories
- * (when a device import supplies them) are shown separately
- * from estimates — the two never mix.
- */
+/** Recent cardio sessions with actual durations and activity details. */
 export function CardioHistoryList() {
   const { sessions, loading, error, remove } = useCardio()
-  const { weight } = useLatestWeight()
   const [deleting, setDeleting] = useState<CardioSession | null>(null)
 
   return (
-    <Card className="p-5">
+    <Card className="border-cardio/35 bg-base-raised p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-[15px] font-semibold text-ink">
             Recent cardio
           </h3>
-          <p className="mt-0.5 text-[13px] text-ink-3">
-            Last 14 days. Estimates update if your weight changes.
-          </p>
+          <p className="mt-0.5 text-[13px] text-ink-2">Your sessions from the last 14 days.</p>
         </div>
-        {!weight ? (
-          <span className="shrink-0 rounded-lg bg-surface-2 px-2 py-1 text-[11px] text-ink-3">
-            No weight — no estimates yet
-          </span>
-        ) : null}
       </div>
 
       {loading && sessions.length === 0 ? (
@@ -60,7 +43,6 @@ export function CardioHistoryList() {
             <SessionRow
               key={session.id}
               session={session}
-              weightKg={weight?.value ?? null}
               onDelete={() => setDeleting(session)}
             />
           ))}
@@ -95,14 +77,11 @@ export function CardioHistoryList() {
 
 function SessionRow({
   session,
-  weightKg,
   onDelete,
 }: {
   session: CardioSession
-  weightKg: number | null
   onDelete: () => void
 }) {
-  const estimate = estimateSessionCalories(session, weightKg)
   const details: string[] = []
   if (session.distanceKm != null) details.push(`${formatNumber(session.distanceKm)} km`)
   if (session.speedKmh != null) details.push(`${formatNumber(session.speedKmh)} km/h`)
@@ -114,7 +93,7 @@ function SessionRow({
   const isToday = session.date === todayISO()
 
   return (
-    <div className="rounded-xl border border-line bg-surface-2/60 px-4 py-3">
+    <div className="rounded-xl border border-cardio/20 bg-surface px-4 py-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -147,25 +126,6 @@ function SessionRow({
         </Button>
       </div>
 
-      {/* Calorie provenance: estimate vs. user/device-entered value. */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-        {estimate ? (
-          <span className="text-[12px] text-ink-3">
-            <span className="font-medium text-ink-2">Estimated calories</span>{' '}
-            ~{formatCalories(estimate.calories)} kcal
-            <span className="text-ink-3"> ({estimate.basis})</span>
-          </span>
-        ) : (
-          <span className="text-[12px] italic text-ink-3">
-            No calorie estimate — add duration/weight data
-          </span>
-        )}
-        {session.caloriesBurned != null ? (
-          <span className="rounded-md bg-accent-dim px-1.5 py-0.5 text-[11px] font-medium text-accent-strong">
-            Entered: {formatCalories(session.caloriesBurned)} kcal
-          </span>
-        ) : null}
-      </div>
     </div>
   )
 }

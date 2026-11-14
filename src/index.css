@@ -4,44 +4,47 @@
   /* ------------------------------------------------------------------ */
   /* Palette: dark-only, section accent colors.                         */
   /* ------------------------------------------------------------------ */
-  --color-base: #080F14;
-  --color-base-raised: #141A22;
-  --color-surface: #1B2430;
-  --color-surface-2: #212A38;
-  --color-overlay: #1F293B;
-  --color-line: #374151;
-  --color-line-strong: #4B5563;
+  --color-base: #070B12;
+  --color-base-raised: #101725;
+  --color-surface: #151F30;
+  --color-surface-2: #1C2A3F;
+  --color-overlay: #24334A;
+  --color-line: #2B3A51;
+  --color-line-strong: #425570;
 
-  --color-ink: #F4F7FB;
-  --color-ink-2: #9AAAB2;
-  --color-ink-3: #6B7280;
+  --color-ink: #F8FAFC;
+  --color-ink-2: #C4D0E0;
+  --color-ink-3: #94A3B8;
 
-  --color-accent: #8B5CF6;
-  --color-accent-strong: #A78BF7;
-  --color-accent-dim: #8B5CF61a;
+  --color-accent: #A855F7;
+  --color-accent-strong: #C084FC;
+  --color-accent-deep: #7E22CE;
+  --color-accent-dim: #A855F724;
 
   /* Section accent colors */
-  --color-food: #FF6A30;
-  --color-food-dim: #FF6A301a;
-  --color-workout: #3882F6;
-  --color-workout-dim: #3882F61a;
-  --color-tasks: #8855F6;
-  --color-tasks-dim: #8855F61a;
-  --color-progress: #22C55E;
-  --color-progress-dim: #22C55E1a;
+  --color-habits: #22C55E;
+  --color-habits-dim: #22C55E24;
+  --color-workout: #3B82F6;
+  --color-workout-dim: #3B82F624;
+  --color-cardio: #22D3EE;
+  --color-cardio-dim: #22D3EE24;
+  --color-tasks: #A855F7;
+  --color-tasks-dim: #A855F724;
+  --color-progress: #34D399;
+  --color-progress-dim: #34D39924;
   --color-high: #FF4D4F;
-  --color-high-dim: #FF4D4F1a;
+  --color-high-dim: #FF4D4F24;
   --color-medium: #F59E0B;
-  --color-medium-dim: #F59E0B1a;
+  --color-medium-dim: #F59E0B24;
   --color-low: #22C55E;
-  --color-low-dim: #22C55E1a;
+  --color-low-dim: #22C55E24;
 
-  --color-success: #34d399;
-  --color-success-dim: #34d3991f;
-  --color-warning: #fbbf24;
-  --color-warning-dim: #fbbf241f;
-  --color-danger: #fb7185;
-  --color-danger-dim: #fb71851f;
+  --color-success: #22C55E;
+  --color-success-dim: #22C55E24;
+  --color-warning: #F59E0B;
+  --color-warning-dim: #F59E0B24;
+  --color-danger: #FF4D4F;
+  --color-danger-dim: #FF4D4F24;
 
   /* Streak tiers */
   --color-tier-bronze: #CD7F32;
@@ -153,11 +156,11 @@
   }
 
   ::selection {
-    background: #8b5cf640;
+    background: #A855F740;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-accent-strong);
     outline-offset: 2px;
     border-radius: 6px;
   }

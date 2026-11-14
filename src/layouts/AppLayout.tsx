@@ -25,7 +25,7 @@ export function AppLayout() {
       <div className="md:pl-64">
         <TopBar />
         <main
-          className="pb-nav mx-auto w-full max-w-3xl px-4 pt-4 md:max-w-4xl md:px-8 md:pt-8"
+          className="pb-nav mx-auto w-full max-w-4xl px-4 pt-4 md:max-w-7xl md:px-8 md:pt-8"
           style={{ minHeight: 'calc(100dvh - env(safe-area-inset-top))' }}
         >
           <div key={location.pathname} className="animate-page-in">

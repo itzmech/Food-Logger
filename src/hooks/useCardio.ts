@@ -18,11 +18,7 @@ export interface UseCardioResult {
   remove: (id: string) => Promise<boolean>
 }
 
-/**
- * Recent cardio sessions (last 14 days, today first).
- * Re-reads whenever cardio or measurement data changes so
- * estimates (which depend on body weight) stay current.
- */
+/** Recent cardio sessions (last 14 days, today first). */
 export function useCardio(): UseCardioResult {
   const [sessions, setSessions] = useState<CardioSession[]>([])
   const [loading, setLoading] = useState(true)

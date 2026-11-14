@@ -1,13 +1,12 @@
 /**
  * Centralised app constants.
  *
- * Nothing personal (names, weights, calorie targets) is hard-coded here —
- * that all lives in the database and is entered by the user.
+ * User-specific settings and activity targets are stored in the database.
  */
 
 export const APP_NAME = 'Freebuff Fitness'
 export const APP_SHORT_NAME = 'Freebuff'
-export const APP_TAGLINE = 'Local-first fitness, food & progress tracking'
+export const APP_TAGLINE = 'Tasks, habits, workouts & cardio'
 
 /** Default journey length; the user can change it per goal. */
 export const DEFAULT_JOURNEY_WEEKS = 12

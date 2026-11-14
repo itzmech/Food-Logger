@@ -374,6 +374,12 @@ export type HistoryRangeOptions = {
    *  Default false keeps the existing behaviour for getWeekHistory /
    *  getMonthHistory / calendar callers (only weight is indexed). */
   loadAllMeasurements?: boolean
+  /** Skip legacy food logs for consumers that only need activity history. */
+  includeFood?: boolean
+  /** Skip body measurements when they are outside the consumer's scope. */
+  includeMeasurements?: boolean
+  /** Skip derived activity-calorie estimates when not needed. */
+  includeActivityCalories?: boolean
 }
 
 export async function getHistoryRange(
@@ -383,9 +389,13 @@ export async function getHistoryRange(
 ): Promise<DailyHistorySummary[]> {
   const days = eachDay(from, to)
   const loadAllMeasurements = opts.loadAllMeasurements === true
+  const includeMeasurements = opts.includeMeasurements !== false
+  const includeFood = opts.includeFood !== false
+  const includeActivityCalories = opts.includeActivityCalories !== false
 
-  const measurementTypesToLoad: BodyMeasurement['type'][] =
-    loadAllMeasurements
+  const measurementTypesToLoad: BodyMeasurement['type'][] = !includeMeasurements
+    ? []
+    : loadAllMeasurements
       ? ['weight', 'waist', 'chest', 'hips', 'arm', 'thigh', 'bodyFat', 'other']
       : ['weight']
 
@@ -395,7 +405,7 @@ export async function getHistoryRange(
   const measurements = measurementLoads.flat()
 
   const [foodLogs, cardio, completedWorkouts, strengthLogs, dayPlansRows] = await Promise.all([
-    getFoodLogsBetween(from, to),
+    includeFood ? getFoodLogsBetween(from, to) : Promise.resolve<FoodLog[]>([]),
     getCardioBetween(from, to),
     listCompletedWorkoutsBetween(from, to),
     dailyStrengthLogsForRange(from, to),
@@ -450,7 +460,9 @@ export async function getHistoryRange(
 
     // Cardio estimates need a weight for the day when available.
     const weightForEstimate = weightRecords.find((m) => m.type === 'weight')?.value ?? null
-    const estimateTotals = sumEstimatedCalories(cardioDay, weightForEstimate)
+    const estimatedActivityCalories = includeActivityCalories
+      ? sumEstimatedCalories(cardioDay, weightForEstimate).totalCalories
+      : null
 
     // Food totals from snapshot nutrition.
     let calories = 0
@@ -553,7 +565,7 @@ export async function getHistoryRange(
       cardioSessionCount: cardioDay.length,
       cardioMinutes,
       cardioActivities,
-      estimatedActivityCalories: estimateTotals.totalCalories,
+      estimatedActivityCalories,
       weight: weightRecords.find((m) => m.type === 'weight')?.value ?? null,
       hasWeightRecord: weightRecords.length > 0,
       measurements: dayMeasurements.filter((m) => m.type !== 'weight'),

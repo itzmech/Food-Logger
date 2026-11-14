@@ -4,7 +4,6 @@ import { Icon } from '@/components/icons'
 import { ProgressRing } from '@/components/ui/ProgressRing'
 import { StreakHero } from '@/components/dashboard/StreakHero'
 import { useDashboardData } from '@/hooks/useDashboardData'
-import { useGoal } from '@/hooks/useGoal'
 import { useHabits } from '@/hooks/useHabits'
 import { useStreaks } from '@/hooks/useStreaks'
 import { useTasks } from '@/hooks/useTasks'
@@ -16,9 +15,9 @@ import { TASK_PRIORITY_LABELS } from '@/types'
 import { formatLongDate, greetingForDate, todayISO } from '@/utils/date'
 
 const CATEGORY_META: Record<StreakCategory, { label: string; color: string; icon: 'repeat' | 'dumbbell' | 'cardio' }> = {
-  habit: { label: 'Habits', color: '#8855F6', icon: 'repeat' },
-  gym: { label: 'Gym', color: '#3882F6', icon: 'dumbbell' },
-  cardio: { label: 'Cardio', color: '#06B6D4', icon: 'cardio' },
+  habit: { label: 'Habits', color: '#22C55E', icon: 'repeat' },
+  gym: { label: 'Workout', color: '#3B82F6', icon: 'dumbbell' },
+  cardio: { label: 'Cardio', color: '#22D3EE', icon: 'cardio' },
 }
 
 const PRIORITY_DOT: Record<TaskPriority, string> = {
@@ -30,7 +29,6 @@ const PRIORITY_DOT: Record<TaskPriority, string> = {
 export default function DashboardPage() {
   const date = todayISO()
   const { summary, loading: summaryLoading, error: summaryError } = useDashboardData()
-  const { data: goal } = useGoal()
   const { habits, todayLogs, markDone, markNotDone, loading: habitsLoading, error: habitsError } = useHabits()
   const { today, toggleTask, loading: tasksLoading, error: tasksError } = useTasks()
   const { streaks, loading: streaksLoading, error: streaksError, skipDay, unskipDay } = useStreaks()
@@ -55,6 +53,16 @@ export default function DashboardPage() {
   const taskTotal = pendingToday.length + completedToday.length
   const completedCount = completedToday.length
   const completedWorkout = summary?.today.workout.status === 'completed' || (summary?.today.activity.workoutsCompleted ?? 0) > 0
+  const consistentDaysThisWeek = useMemo(() => {
+    const from = summary?.week.from ?? date
+    return new Set(
+      streaks.flatMap((streak) =>
+        streak.history
+          .filter((day) => day.status === 'active' && day.date >= from)
+          .map((day) => day.date),
+      ),
+    ).size
+  }, [date, streaks, summary?.week.from])
 
   const runAction = async (action: () => Promise<void>) => {
     setActionError(null)
@@ -105,7 +113,7 @@ export default function DashboardPage() {
             days: streakByCategory.get(category)?.current ?? 0,
             color: CATEGORY_META[category].color,
           }))}
-          className="rounded-2xl border-white/[0.07] bg-surface px-4 py-4"
+          className="rounded-2xl border-white/[0.12] bg-surface px-4 py-4"
         />
         <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-ink-3">
           <span>{streaksLoading ? 'Updating streaks…' : 'Three independent category streaks'}</span>
@@ -115,7 +123,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-white/[0.07] bg-surface">
+      <section className="overflow-hidden rounded-2xl border border-tasks/30 bg-surface">
         <div className="flex items-center justify-between gap-3 px-3 pb-2 pt-3">
           <div className="flex items-baseline gap-2">
             <h2 className="font-heading text-[13px] font-semibold tracking-tight">Today’s tasks</h2>
@@ -149,17 +157,17 @@ export default function DashboardPage() {
       </section>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <section className="flex flex-col rounded-2xl border border-white/[0.06] bg-surface p-3">
-          <div className="flex items-center justify-between">
+        <section className="flex flex-col rounded-2xl border border-habits/25 bg-base-raised p-3">
+          <div className="flex items-center justify-between gap-2">
             <div>
               <h2 className="font-heading text-[13px] font-semibold">Habits</h2>
               <p className="mt-0.5 text-[11px] text-ink-3">
                 {streakByCategory.get('habit')?.current ?? 0} day streak
               </p>
             </div>
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-dim text-accent-strong">
-              <Icon name="repeat" size={16} />
-            </span>
+            <Link to="/habits" className="flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-habits hover:bg-habits-dim">
+              Manage <Icon name="chevron-right" size={14} />
+            </Link>
           </div>
           <div className="my-3 flex justify-center">
             <ProgressRing
@@ -167,6 +175,7 @@ export default function DashboardPage() {
               size={80}
               title="Habits today"
               subtitle={`${todayHabits.filter((habit) => logByHabit.get(habit.id)?.status === 'completed').length}/${todayHabits.length}`}
+              color="#22C55E"
             />
           </div>
           {todayHabits.length ? (
@@ -181,9 +190,9 @@ export default function DashboardPage() {
                     onClick={() => void toggleHabit(habit.id)}
                     disabled={habitsLoading}
                     aria-label={`${done ? 'Mark incomplete' : 'Mark complete'}: ${habit.title}`}
-                    className="flex min-h-11 w-full items-center gap-2 rounded-lg px-1.5 py-2 text-left transition-colors hover:bg-surface-2 disabled:opacity-60"
+                    className="flex min-h-11 w-full items-center gap-2 rounded-lg px-1.5 py-2 text-left transition-colors hover:bg-habits-dim disabled:opacity-60"
                   >
-                    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-success/50 bg-success-dim text-success' : 'border-line-strong text-transparent'}`}>
+                    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${done ? 'border-habits bg-habits text-[#052E16]' : 'border-line-strong text-transparent'}`}>
                       {done ? <Icon name="check" size={13} strokeWidth={2.5} /> : null}
                     </span>
                     <span className={`min-w-0 flex-1 truncate text-[12px] font-medium ${done ? 'text-ink-3 line-through' : 'text-ink-2'}`}>{habit.title}</span>
@@ -213,39 +222,11 @@ export default function DashboardPage() {
           completed={(summary?.today.activity.cardioSessions ?? 0) > 0}
           summary={(summary?.today.cardioMinutes ?? 0) > 0 ? `${summary?.today.cardioMinutes} min logged` : 'No cardio logged today'}
           detail={`${summary?.today.activity.cardioSessions ?? 0} sessions · ${summary?.week.cardioMinutes ?? 0} min this week`}
-          link="/workout"
+          link="/cardio"
           onSkip={() => void toggleStreakSkip('cardio', streakByCategory.get('cardio'))}
         />
 
-        <section className="rounded-2xl border border-white/[0.06] bg-surface p-3 sm:col-span-2">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="font-heading text-[13px] font-semibold">Nutrition</h2>
-              <p className="mt-0.5 text-[11px] text-ink-3">{summary?.today.loggedMeals ?? 0} food entries logged today</p>
-            </div>
-            <Link to="/food" className="flex min-h-11 items-center gap-1 text-xs font-medium text-ink-2">
-              Log food <Icon name="chevron-right" size={14} />
-            </Link>
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-4">
-            <NutritionMetric
-              label="Calories"
-              value={summary?.today.calories ?? 0}
-              target={goal?.dailyCalories ?? null}
-              unit="kcal"
-              color="#FF6A30"
-            />
-            <NutritionMetric
-              label="Protein"
-              value={summary?.today.proteinG ?? 0}
-              target={goal?.dailyProteinG ?? null}
-              unit="g"
-              color="#22C55E"
-            />
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-white/[0.06] bg-surface p-3 sm:col-span-2">
+        <section className="rounded-2xl border border-line bg-surface p-3 sm:col-span-2">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="font-heading text-[13px] font-semibold">This week</h2>
@@ -256,16 +237,10 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="mt-3 grid grid-cols-3 gap-2">
-            <WeeklyMetric label="Training days" value={summary?.week.workouts ?? 0} icon="dumbbell" color="#3882F6" />
-            <WeeklyMetric label="Cardio minutes" value={summary?.week.cardioMinutes ?? 0} icon="cardio" color="#06B6D4" />
-            <WeeklyMetric label="Active days" value={summary?.week.activeDays.length ?? 0} icon="activity" color="#22C55E" />
+            <WeeklyMetric label="Training days" value={summary?.week.workouts ?? 0} icon="dumbbell" color="#3B82F6" />
+            <WeeklyMetric label="Cardio minutes" value={summary?.week.cardioMinutes ?? 0} icon="cardio" color="#22D3EE" />
+            <WeeklyMetric label="Days consistent" value={consistentDaysThisWeek} icon="activity" color="#22C55E" />
           </div>
-          {summary?.weight.latestKg != null ? (
-            <div className="mt-3 flex items-center justify-between border-t border-white/[0.06] pt-3 text-xs">
-              <span className="text-ink-3">Latest weight · {summary.weight.latestDate}</span>
-              <span className="font-semibold tabular-nums text-ink">{summary.weight.latestKg.toFixed(1)} kg</span>
-            </div>
-          ) : null}
         </section>
       </div>
 
@@ -339,7 +314,10 @@ function ActivityCard({
   const meta = CATEGORY_META[category]
   const skipped = streak?.history.some((day) => day.date === todayISO() && day.status === 'skipped') ?? false
   return (
-    <section className="flex flex-col rounded-2xl border border-white/[0.06] bg-surface p-3">
+    <section
+      className="flex flex-col rounded-2xl border bg-base-raised p-3"
+      style={{ borderColor: `${meta.color}55` }}
+    >
       <div className="flex items-start justify-between gap-2">
         <div>
           <h2 className="font-heading text-[13px] font-semibold">{meta.label}</h2>
@@ -358,7 +336,7 @@ function ActivityCard({
           <p className="mt-0.5 text-[10px] text-ink-3">{detail}</p>
         </div>
       </div>
-      <Link to={link} className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-white/[0.09] text-xs font-semibold text-ink-2 hover:bg-surface-2">
+      <Link to={link} className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg border px-3 text-xs font-semibold hover:bg-surface-2" style={{ borderColor: `${meta.color}70`, color: meta.color }}>
         <Icon name="plus" size={14} /> {category === 'gym' ? 'Open workout' : 'Log cardio'}
       </Link>
       {!completed || skipped ? (
@@ -371,45 +349,6 @@ function ActivityCard({
         </span>
       )}
     </section>
-  )
-}
-
-function NutritionMetric({
-  label,
-  value,
-  target,
-  unit,
-  color,
-}: {
-  label: string
-  value: number
-  target: number | null
-  unit: string
-  color: string
-}) {
-  const percent = target && target > 0 ? Math.min(value / target, 1) : null
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[11px] text-ink-3">{label}</span>
-        <span className="text-[10px] text-ink-3">{target ? `Goal ${target.toLocaleString()} ${unit}` : 'Goal not set'}</span>
-      </div>
-      <p className="mt-1 text-[20px] font-bold tabular-nums" style={{ color }}>
-        {Math.round(value).toLocaleString()} <span className="text-[11px] font-medium text-ink-3">{unit}</span>
-      </p>
-      {percent != null ? (
-        <div
-          role="progressbar"
-          aria-label={`${label} goal progress`}
-          aria-valuemin={0}
-          aria-valuemax={target ?? 0}
-          aria-valuenow={Math.min(value, target ?? 0)}
-          className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.08]"
-        >
-          <div className="h-full rounded-full transition-[width] motion-reduce:transition-none" style={{ width: `${percent * 100}%`, backgroundColor: color }} />
-        </div>
-      ) : null}
-    </div>
   )
 }
 

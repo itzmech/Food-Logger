@@ -132,7 +132,7 @@ export default function TasksPage() {
       flexibleTasks.length + completedTasks.length > 0
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="space-y-5 pb-4" data-section="tasks">
       <PageHeader
         title="Tasks"
         subtitle={formatLongDate(todayISO())}

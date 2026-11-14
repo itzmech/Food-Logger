@@ -9,7 +9,6 @@ import { SettingsGroup, SettingRow } from '@/components/ui/SettingRow'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Badge } from '@/components/ui/Badge'
 import { InfoNote } from '@/components/ui/InfoNote'
-import { ComingSoon } from '@/components/ui/ComingSoon'
 import { useGoals } from '@/hooks/useGoals'
 import { useSettings } from '@/hooks/useSettings'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
@@ -23,16 +22,14 @@ import {
 } from '@/db'
 import { DB_NAME, DB_VERSION, STORE_NAMES } from '@/db/schema'
 import { APP_NAME, APP_SHORT_NAME } from '@/lib/constants'
-import { todayISO } from '@/utils/date'
 
 type Feedback = { tone: 'success' | 'error'; text: string } | null
 
 /**
  * Settings phase 1.
  *
- * Functional already: name, journey length and every goal target persist to
- * IndexedDB (creating the goal on first save). Export/import/reset operate on
- * the real database.
+ * Profile, activity targets and local data controls persist through the existing
+ * settings and IndexedDB repositories. Legacy goal records are left untouched.
  */
 export default function SettingsPage() {
   const { settings, update, loading: settingsLoading } = useSettings()
@@ -44,12 +41,6 @@ export default function SettingsPage() {
   const [goalBusy, setGoalBusy] = useState(false)
   const [goalDraft, setGoalDraft] = useState(() => ({
     name: '',
-    weeks: '',
-    startWeightKg: '',
-    targetWeightKg: '',
-    targetWaistCm: '',
-    dailyCalories: '',
-    dailyProteinG: '',
     weeklyWorkouts: '',
     weeklyCardioMinutes: '',
   }))
@@ -64,12 +55,6 @@ export default function SettingsPage() {
     setDraftHydrated(true)
     setGoalDraft({
       name: settings?.name ?? '',
-      weeks: goal?.weeks != null ? String(goal.weeks) : '12',
-      startWeightKg: goal?.startWeightKg != null ? String(goal.startWeightKg) : '',
-      targetWeightKg: goal?.targetWeightKg != null ? String(goal.targetWeightKg) : '',
-      targetWaistCm: goal?.targetWaistCm != null ? String(goal.targetWaistCm) : '',
-      dailyCalories: goal?.dailyCalories != null ? String(goal.dailyCalories) : '',
-      dailyProteinG: goal?.dailyProteinG != null ? String(goal.dailyProteinG) : '',
       weeklyWorkouts: goal?.weeklyWorkouts != null ? String(goal.weeklyWorkouts) : '',
       weeklyCardioMinutes: goal?.weeklyCardioMinutes != null ? String(goal.weeklyCardioMinutes) : '',
     })
@@ -90,20 +75,13 @@ export default function SettingsPage() {
         await update({ name: goalDraft.name.trim() })
       }
       const saved = await save({
-        weeks: Math.max(1, Math.round(number(goalDraft.weeks) ?? 12)),
-        startWeightKg: number(goalDraft.startWeightKg),
-        targetWeightKg: number(goalDraft.targetWeightKg),
-        targetWaistCm: number(goalDraft.targetWaistCm),
-        dailyCalories: number(goalDraft.dailyCalories),
-        dailyProteinG: number(goalDraft.dailyProteinG),
         weeklyWorkouts: number(goalDraft.weeklyWorkouts) != null ? Math.round(number(goalDraft.weeklyWorkouts) as number) : null,
         weeklyCardioMinutes:
           number(goalDraft.weeklyCardioMinutes) != null
             ? Math.round(number(goalDraft.weeklyCardioMinutes) as number)
             : null,
-        startDate: goal?.startDate ?? todayISO(),
       })
-      setFeedback({ tone: 'success', text: 'Goals saved. The dashboard now uses these targets.' })
+      setFeedback({ tone: 'success', text: 'Activity targets saved.' })
       void saved
     } catch (error) {
       setFeedback({
@@ -201,113 +179,12 @@ export default function SettingsPage() {
         </div>
       </SettingsGroup>
 
-      {/* Goals --------------------------------------------------------- */}          <SettingsGroup
-        title="Goals"
-        description={
-          goal
-            ? `Active journey started ${goal.startDate}. Leave a field blank to skip that target.`
-            : 'Create your 12-week journey. Leave a field blank to skip that target.'
-        }
+      <SettingsGroup
+        title="Activity targets"
+        description="Optional weekly targets for your recorded workouts and cardio."
       >
         <div className="space-y-4 p-4">
           <div className="grid grid-cols-2 gap-3">
-            <NumberField
-              label="Journey length"
-              suffix="weeks"
-              min={1}
-              max={52}
-              value={goalDraft.weeks}
-              onChange={(ev) =>
-                setGoalDraft((draft) => ({ ...draft, weeks: ev.target.value }))
-              }
-            />
-            <SelectField
-              label="Units"
-              value={settings?.units ?? 'metric'}
-              onChange={(ev) =>
-                void update({ units: ev.target.value as 'metric' | 'imperial' })
-              }
-              hint="Body-weight units."
-            >
-              <option value="metric">Metric (kg, cm)</option>
-              <option value="imperial">Imperial (lb, in)</option>
-            </SelectField>
-          </div>
-
-          <div className="border-t border-line pt-4">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">
-              Body targets
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <NumberField
-                label="Starting weight"
-                suffix="kg"
-                step={0.1}
-                min={0}
-                placeholder="—"
-                value={goalDraft.startWeightKg}
-                onChange={(ev) =>
-                  setGoalDraft((draft) => ({ ...draft, startWeightKg: ev.target.value }))
-                }
-              />
-              <NumberField
-                label="Target weight"
-                suffix="kg"
-                step={0.1}
-                min={0}
-                placeholder="—"
-                value={goalDraft.targetWeightKg}
-                onChange={(ev) =>
-                  setGoalDraft((draft) => ({ ...draft, targetWeightKg: ev.target.value }))
-                }
-              />
-              <NumberField
-                label="Target waist"
-                suffix="cm"
-                step={0.5}
-                min={0}
-                placeholder="—"
-                value={goalDraft.targetWaistCm}
-                onChange={(ev) =>
-                  setGoalDraft((draft) => ({ ...draft, targetWaistCm: ev.target.value }))
-                }
-              />
-            </div>
-          </div>
-
-          <div className="border-t border-line pt-4">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">
-              Daily nutrition targets
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <NumberField
-                label="Calories"
-                suffix="kcal"
-                min={0}
-                placeholder="—"
-                value={goalDraft.dailyCalories}
-                onChange={(ev) =>
-                  setGoalDraft((draft) => ({ ...draft, dailyCalories: ev.target.value }))
-                }
-              />
-              <NumberField
-                label="Protein"
-                suffix="g"
-                min={0}
-                placeholder="—"
-                value={goalDraft.dailyProteinG}
-                onChange={(ev) =>
-                  setGoalDraft((draft) => ({ ...draft, dailyProteinG: ev.target.value }))
-                }
-              />
-            </div>
-          </div>
-
-          <div className="border-t border-line pt-4">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-3">
-              Weekly activity targets
-            </p>
-            <div className="grid grid-cols-2 gap-3">
               <NumberField
                 label="Workouts"
                 suffix="/wk"
@@ -328,15 +205,25 @@ export default function SettingsPage() {
                   setGoalDraft((draft) => ({ ...draft, weeklyCardioMinutes: e2.target.value }))
                 }
               />
-            </div>
           </div>
 
+          <SelectField
+            label="Exercise load units"
+            value={settings?.units ?? 'metric'}
+            onChange={(ev) =>
+              void update({ units: ev.target.value as 'metric' | 'imperial' })
+            }
+            hint="Used for exercise loads."
+          >
+            <option value="metric">Metric (kg)</option>
+            <option value="imperial">Imperial (lb)</option>
+          </SelectField>
+
           <Button className="w-full" onClick={() => void handleSaveGoal()} disabled={goalBusy}>
-            {goalBusy ? 'Saving…' : goal ? 'Update goals' : 'Create goals'}
+            {goalBusy ? 'Saving…' : 'Save activity targets'}
           </Button>
           <p className="text-[12px] leading-snug text-ink-3">
-            Targets are stored on this device only. The dashboard reads them automatically — no
-            defaults are invented for you.
+            Targets are optional and stored on this device.
           </p>
         </div>
       </SettingsGroup>
@@ -377,7 +264,7 @@ export default function SettingsPage() {
           icon="trash"
           tone="danger"
           title="Reset all data"
-          description="Erase meals, workouts, measurements and settings on this device."
+          description="Erase local app data from this device."
           action={
             <Button variant="danger" size="sm" onClick={() => setConfirmReset(true)}>
               Reset
@@ -432,24 +319,6 @@ export default function SettingsPage() {
         />
       </SettingsGroup>
 
-      {/* Roadmap -------------------------------------------------------- */}
-      <SettingsGroup title="Coming in later phases">
-        <div className="space-y-3 p-4">
-          <ComingSoon
-            icon="target"
-            title="Journey timeline"
-            description="Week-by-week view of the cutting phase with milestones and check-ins."
-            phase="Later phase"
-          />
-          <ComingSoon
-            icon="upload"
-            title="Cloud sync (optional)"
-            description="The database layer is built behind repositories, so a sync backend can be added without touching the UI."
-            phase="Much later"
-          />
-        </div>
-      </SettingsGroup>
-
       <Card className="flex items-center gap-3">
         <Icon name="info" size={16} className="shrink-0 text-ink-3" />
         <p className="text-[12px] leading-relaxed text-ink-3">
@@ -462,7 +331,7 @@ export default function SettingsPage() {
         open={confirmReset}
         tone="danger"
         title="Reset all data?"
-        description="Every store in this browser — meals, workouts, measurements, photos, goals and settings — will be erased. This cannot be undone."
+        description="Every store in this browser will be erased. This cannot be undone."
         confirmLabel="Erase everything"
         cancelLabel="Keep my data"
         busy={resetBusy}

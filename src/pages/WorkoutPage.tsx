@@ -20,18 +20,15 @@ import { formatShortDate, todayISO, startOfWeek, addDays, weekdayOf } from '@/ut
 import { Icon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { TextField } from '@/components/ui/Field'
-import { SectionHeader } from '@/components/ui/SectionHeader'
 import { Card } from '@/components/ui/Card'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { BottomSheet } from '@/components/ui/BottomSheet'
 import { ExerciseLibrary } from '@/components/workout/ExerciseLibrary'
-import { CardioLogForm } from '@/components/workout/CardioLogForm'
-import { CardioHistoryList } from '@/components/workout/CardioHistoryList'
 import { cn } from '@/utils/cn'
 import { useSettings } from '@/hooks/useSettings'
 import { EXERCISE_CATEGORY_LABELS } from '@/types'
 
-type ViewId = 'log' | 'plan' | 'library' | 'cardio'
+type ViewId = 'log' | 'plan' | 'library'
 
 export default function WorkoutPage() {
   const [view, setView] = useState<ViewId>('log')
@@ -54,11 +51,11 @@ export default function WorkoutPage() {
   }, [editingPlanDate])
 
   return (
-    <div className="space-y-6 pb-nav">
+    <div className="space-y-6 pb-nav" data-section="workout">
       <header className="flex items-end justify-between gap-3">
         <div>
           <h1 className="text-[22px] font-bold leading-tight tracking-tight text-ink">
-            {view === 'log' ? 'Workout' : view === 'plan' ? 'Weekly plan' : view === 'library' ? 'Exercises' : 'Cardio'}
+            {view === 'log' ? 'Workout' : view === 'plan' ? 'Weekly plan' : 'Exercises'}
           </h1>
           <p className="mt-0.5 text-sm text-ink-3">
             {view === 'log'
@@ -67,7 +64,7 @@ export default function WorkoutPage() {
                 ? 'Plan your week'
                 : view === 'library'
                   ? 'Your exercise database'
-                  : 'Log walks, runs, rides'}
+                  : 'Plan your week'}
           </p>
         </div>
         <div className="flex gap-1 overflow-x-auto">
@@ -75,6 +72,7 @@ export default function WorkoutPage() {
             variant={view === 'log' ? 'primary' : 'secondary'}
             size="sm"
             className="min-h-[44px]"
+            style={view === 'log' ? { backgroundColor: '#3B82F6' } : undefined}
             onClick={() => setView('log')}
           >
             <Icon name="workout" size={15} />
@@ -84,24 +82,17 @@ export default function WorkoutPage() {
             variant={view === 'library' ? 'primary' : 'secondary'}
             size="sm"
             className="min-h-[44px]"
+            style={view === 'library' ? { backgroundColor: '#3B82F6' } : undefined}
             onClick={() => setView('library')}
           >
             <Icon name="dumbbell" size={15} />
             Exercises
           </Button>
           <Button
-            variant={view === 'cardio' ? 'primary' : 'secondary'}
-            size="sm"
-            className="min-h-[44px]"
-            onClick={() => setView('cardio')}
-          >
-            <Icon name="cardio" size={15} />
-            Cardio
-          </Button>
-          <Button
             variant={view === 'plan' ? 'primary' : 'secondary'}
             size="sm"
             className="min-h-[44px]"
+            style={view === 'plan' ? { backgroundColor: '#3B82F6' } : undefined}
             onClick={() => setView('plan')}
           >
             <Icon name="calendar" size={15} />
@@ -127,17 +118,6 @@ export default function WorkoutPage() {
           <ExerciseLibrary />
         </Card>
       )}
-      {view === 'cardio' && (
-        <div className="space-y-5">
-          <SectionHeader
-            title="Cardio"
-            description="Log walks, runs, rides and more. Activity + duration only — calories are estimated, never required."
-          />
-          <CardioLogForm />
-          <CardioHistoryList />
-        </div>
-      )}
-
       {editingPlanDate && editPlan !== null && (
         <PlanEditor
           date={editingPlanDate}
@@ -200,7 +180,7 @@ function DailyLogView({ date, onDateChange }: { date: string; onDateChange: (d: 
   const [pickingExercise, setPickingExercise] = useState<Exercise | null>(null)
   const [pickEquipment, setPickEquipment] = useState<string>('')
   const [pickCustomEquipment, setPickCustomEquipment] = useState('')
-  const [pickConfirming, setPickConfirming] = useState(false)
+  const [, setPickConfirming] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [skipTarget, setSkipTarget] = useState<string | null>(null)
 
@@ -458,28 +438,26 @@ function DailyLogView({ date, onDateChange }: { date: string; onDateChange: (d: 
               setPickingExercise(exercise)
               setPickEquipment(exercise.defaultEquipment ?? exercise.equipment ?? '')
               setPickCustomEquipment('')
-              setPickConfirming(false)
+              setPickEquipment(exercise.defaultEquipment ?? exercise.equipment ?? '')
             }}
             onBack={() => {
               setAdding(false)
               setPickingExercise(null)
               setPickEquipment('')
               setPickCustomEquipment('')
-              setPickConfirming(false)
             }}
             onCreateCustom={(values) => {
               void createExercise(values).then((exercise) => {
                 setPickingExercise(exercise)
                 setPickEquipment(exercise.defaultEquipment ?? exercise.equipment ?? '')
                 setPickCustomEquipment('')
-                setPickConfirming(false)
               })
             }}
           />
         )}
       </BottomSheet>
 
-      {pickConfirming && pickingExercise && (
+      {pickingExercise && (
         <ConfirmDialog
           open
           title="Add exercise?"
@@ -498,14 +476,13 @@ function DailyLogView({ date, onDateChange }: { date: string; onDateChange: (d: 
               pickingExercise.name,
               equipment,
               options,
-              pickingExercise.builtIn ?? true,
+              pickingExercise.builtIn ?? false,
               null,
             )
             setAdding(false)
             setPickingExercise(null)
             setPickEquipment('')
             setPickCustomEquipment('')
-            setPickConfirming(false)
           }}
           onCancel={() => setPickConfirming(false)}
         />

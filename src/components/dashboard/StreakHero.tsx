@@ -73,7 +73,12 @@ export function StreakHero({
               <div key={category.label} className="flex items-center justify-center gap-1.5">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: category.color }} />
                 <span className="text-[11px] text-ink-3">{category.label}</span>
-                <span className="text-[12px] font-semibold tabular-nums text-ink">{category.days}</span>
+                <span
+                  className="text-[12px] font-semibold tabular-nums"
+                  style={{ color: category.color }}
+                >
+                  {category.days}
+                </span>
               </div>
             ))}
           </div>

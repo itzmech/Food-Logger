@@ -12,9 +12,10 @@ export interface NavItem {
   path: string
   icon: IconName
   description: string
+  accent: string
 }
 
-/** Primary destinations shown in the mobile bottom bar (max 5). */
+/** Core product destinations shown in both primary navigation surfaces. */
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   {
     id: 'dashboard',
@@ -22,72 +23,58 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
     path: '/',
     icon: 'dashboard',
     description: 'Today at a glance',
-  },
-  {
-    id: 'food',
-    label: 'Food',
-    path: '/food',
-    icon: 'food',
-    description: 'Meals, calories & protein',
-  },
-  {
-    id: 'workout',
-    label: 'Workout',
-    path: '/workout',
-    icon: 'workout',
-    description: 'Sessions, sets & cardio',
-  },
-  {
-    id: 'progress',
-    label: 'Progress',
-    path: '/progress',
-    icon: 'progress',
-    description: 'Weight, measurements & charts',
+    accent: '#A855F7',
   },
   {
     id: 'tasks',
     label: 'Tasks',
     path: '/tasks',
     icon: 'check',
-    description: "Today's to-dos",
+    description: 'Deadlines and daily tasks',
+    accent: '#A855F7',
+  },
+  {
+    id: 'habits',
+    label: 'Habits',
+    path: '/habits',
+    icon: 'repeat',
+    description: 'Schedules and daily habits',
+    accent: '#22C55E',
+  },
+  {
+    id: 'workout',
+    label: 'Workout',
+    path: '/workout',
+    icon: 'workout',
+    description: 'Sessions and exercise history',
+    accent: '#3B82F6',
+  },
+  {
+    id: 'cardio',
+    label: 'Cardio',
+    path: '/cardio',
+    icon: 'cardio',
+    description: 'Running and cardio sessions',
+    accent: '#22D3EE',
+  },
+  {
+    id: 'progress',
+    label: 'Progress',
+    path: '/progress',
+    icon: 'progress',
+    description: 'Streaks and activity history',
+    accent: '#22C55E',
   },
 ]
 
-/** Secondary destinations: kept out of the bottom bar on phones. */
-export const SECONDARY_NAV_ITEMS: NavItem[] = [
-  {
-    id: 'history',
-    label: 'History',
-    path: '/history',
-    icon: 'calendar',
-    description: 'Past days, food & workouts',
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    path: '/analytics',
-    icon: 'bar-chart',
-    description: 'Trends & summaries',
-  },
-  {
-    id: 'menu',
-    label: 'Menu',
-    path: '/menu',
-    icon: 'menu',
-    description: 'Mess menu & overrides',
-  },
-]
-
-/** All nav items, for the desktop sidebar. */
-export const NAV_ITEMS: NavItem[] = [
-  ...PRIMARY_NAV_ITEMS,
-  ...SECONDARY_NAV_ITEMS,
-]
+/** All primary destinations, for the desktop sidebar. */
+export const NAV_ITEMS: NavItem[] = PRIMARY_NAV_ITEMS
 
 export const SETTINGS_ITEM: NavItem = {
   id: 'settings',
   label: 'Settings',
   path: '/settings',
   icon: 'settings',
-  description: 'Goals, data & app info',
+  description: 'Activity targets, data & app info',
+  accent: '#94A3B8',
 }

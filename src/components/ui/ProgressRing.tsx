@@ -4,19 +4,21 @@ const STROKE = 10
 const RADIUS = (100 - STROKE) / 2
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
-/** Progress ring used on the Today dashboard for calories and protein. */
+/** Category-colored completion ring used across the daily activity views. */
 export function ProgressRing({
   value,
   size = 84,
   className,
   title,
   subtitle,
+  color = 'var(--color-progress)',
 }: {
   value: number // 0 to 1
   size?: number
   className?: string
   title?: string
   subtitle?: string
+  color?: string
 }) {
   const clamped = Number.isFinite(value) ? Math.min(Math.max(value, 0), 1) : 0
   const percent = Math.round(clamped * 100)
@@ -37,7 +39,8 @@ export function ProgressRing({
             cy="50"
             r={RADIUS}
             fill="none"
-            stroke="var(--color-progress-dim)"
+            stroke={color}
+            strokeOpacity={0.2}
             strokeWidth={STROKE}
           />
           {clamped > 0 ? (
@@ -46,7 +49,7 @@ export function ProgressRing({
               cy="50"
               r={RADIUS}
               fill="none"
-              stroke="var(--color-progress)"
+              stroke={color}
               strokeWidth={STROKE}
               strokeLinecap="round"
               strokeDasharray={CIRCUMFERENCE}

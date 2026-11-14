@@ -26,10 +26,13 @@ export function SideNav() {
               cn(
                 ITEM_BASE,
                 isActive
-                  ? 'bg-accent-dim text-accent-strong'
+                  ? 'bg-surface-2'
                   : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
               )
             }
+            style={({ isActive }) => isActive
+              ? { color: item.accent, boxShadow: `inset 3px 0 ${item.accent}` }
+              : undefined}
           >
             {({ isActive }) => (
               <>
@@ -51,10 +54,11 @@ export function SideNav() {
             cn(
               ITEM_BASE,
               isActive
-                ? 'bg-accent-dim text-accent-strong'
+                ? 'bg-surface-2'
                 : 'text-ink-2 hover:bg-surface-2 hover:text-ink',
             )
           }
+          style={({ isActive }) => isActive ? { color: SETTINGS_ITEM.accent } : undefined}
         >
           <Icon name={SETTINGS_ITEM.icon} size={19} />
           <span>{SETTINGS_ITEM.label}</span>

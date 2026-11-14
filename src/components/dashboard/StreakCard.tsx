@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { Icon } from '@/components/icons'
 import type { IconName } from '@/components/icons'
 import { cn } from '@/utils/cn'
-import { streakTier, STREAK_TIER_COLORS, STREAK_TIER_LABELS, type StreakTier } from '@/lib/streaks'
+import { streakTier, STREAK_TIER_LABELS, type StreakTier } from '@/lib/streaks'
 import type { StreakCategory, StreakResult } from '@/lib/streaks'
 import { todayISO } from '@/utils/date'
 
@@ -21,8 +21,14 @@ const CATEGORY_ICON: Record<StreakCategory, IconName> = {
 
 const CATEGORY_LABEL: Record<StreakCategory, string> = {
   habit: 'Habits',
-  gym: 'Gym',
+  gym: 'Workout',
   cardio: 'Cardio',
+}
+
+const CATEGORY_COLOR: Record<StreakCategory, string> = {
+  habit: '#22C55E',
+  gym: '#3B82F6',
+  cardio: '#22D3EE',
 }
 
 export interface StreakCardProps {
@@ -37,7 +43,7 @@ export interface StreakCardProps {
 export function StreakCard({ streak, onSkip, onUnskip, isSkipped = false, className }: StreakCardProps) {
   const [expanded, setExpanded] = useState(false)
   const tier = streakTier(streak.current)
-  const color = STREAK_TIER_COLORS[tier]
+  const color = CATEGORY_COLOR[streak.category]
   const icon = CATEGORY_ICON[streak.category] ?? 'target-arrow'
   const label = CATEGORY_LABEL[streak.category] ?? streak.category
 

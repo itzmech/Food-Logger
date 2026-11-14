@@ -10,7 +10,7 @@ export function BottomNav() {
       aria-label="Primary"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-base/95 backdrop-blur-xl md:hidden safe-bottom"
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-5 px-1">
+      <ul className="mx-auto grid max-w-3xl grid-cols-6 px-1">
         {PRIMARY_NAV_ITEMS.map((item) => (
           <li key={item.id}>
             <NavLink
@@ -20,19 +20,19 @@ export function BottomNav() {
                 cn(
                   'flex flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 min-h-[4rem]',
                   'transition-colors duration-150',
-                  isActive
-                    ? 'text-accent-strong'
-                    : 'text-ink-3 hover:text-ink-2',
+                  isActive ? '' : 'text-ink-2 hover:text-ink',
                 )
               }
+              style={({ isActive }) => isActive ? { color: item.accent } : undefined}
             >
               {({ isActive }) => (
                 <>
                   <span
                     className={cn(
                       'flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150',
-                      isActive ? 'bg-accent-dim' : 'hover:bg-surface-2',
+                      isActive ? '' : 'hover:bg-surface-2',
                     )}
+                    style={isActive ? { backgroundColor: `${item.accent}24` } : undefined}
                   >
                     <Icon name={item.icon} size={20} strokeWidth={isActive ? 2 : 1.75} />
                   </span>

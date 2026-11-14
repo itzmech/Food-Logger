@@ -1,16 +1,16 @@
 {
   "name": "Freebuff Fitness",
   "short_name": "Freebuff",
-  "description": "Offline-first personal fitness, diet and progress tracker for a 12-week journey.",
+  "description": "Offline-first tasks, habits, workouts and cardio tracker.",
   "id": "/",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#0a0b10",
-  "theme_color": "#0a0b10",
-  "theme_color_dark": "#0a0b10",
+  "background_color": "#070B12",
+  "theme_color": "#070B12",
+  "theme_color_dark": "#070B12",
   "categories": ["health", "fitness", "lifestyle"],
   "lang": "en",
   "dir": "ltr",
@@ -36,9 +36,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Log food",
-      "short_name": "Food",
-      "url": "/?source=pwa#/food",
+      "name": "Today's tasks",
+      "short_name": "Tasks",
+      "url": "/?source=pwa#/tasks",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {

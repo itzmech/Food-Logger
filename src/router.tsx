@@ -1,11 +1,9 @@
 import { createHashRouter } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
 import {
-  AnalyticsPage,
   DashboardPage,
-  FoodPage,
-  HistoryPage,
-  MenuPage,
+  CardioPage,
+  HabitsPage,
   NotFoundPage,
   ProgressPage,
   SettingsPage,
@@ -23,12 +21,10 @@ export const router = createHashRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <DashboardPage /> },
-      { path: 'food', element: <FoodPage /> },
+      { path: 'habits', element: <HabitsPage /> },
       { path: 'workout', element: <WorkoutPage /> },
+      { path: 'cardio', element: <CardioPage /> },
       { path: 'progress', element: <ProgressPage /> },
-      { path: 'history', element: <HistoryPage /> },
-      { path: 'analytics', element: <AnalyticsPage /> },
-      { path: 'menu', element: <MenuPage /> },
       { path: 'tasks', element: <TasksPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: '*', element: <NotFoundPage /> },

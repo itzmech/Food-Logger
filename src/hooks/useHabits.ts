@@ -29,7 +29,14 @@ export interface UseHabits {
   getLogForDate: (habitId: string, date: string) => HabitLog | undefined
 }
 
-export function useHabits(): UseHabits {
+export interface UseHabitsOptions {
+  date?: string
+  includeArchived?: boolean
+}
+
+export function useHabits(options: UseHabitsOptions = {}): UseHabits {
+  const date = options.date ?? todayISO()
+  const activeOnly = !options.includeArchived
   const [habits, setHabits] = useState<Habit[]>([])
   const [todayLogs, setTodayLogs] = useState<HabitLog[]>([])
   const [loading, setLoading] = useState(true)
@@ -39,10 +46,9 @@ export function useHabits(): UseHabits {
     try {
       setLoading(true)
       setError(null)
-      const today = todayISO()
       const [h, logs] = await Promise.all([
-        listHabits(),
-        listHabitLogsForDate(today),
+        listHabits(activeOnly),
+        listHabitLogsForDate(date),
       ])
       setHabits(h)
       setTodayLogs(logs)
@@ -51,7 +57,7 @@ export function useHabits(): UseHabits {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [activeOnly, date])
 
   useEffect(() => {
     void reload()

@@ -1,28 +1,42 @@
-import type { CardioSession, Workout } from '@/types'
+import { useEffect } from 'react'
 import {
-  getActiveGoal,
   getCardioBetween,
   getCardioForDate,
-  getFoodLogsBetween,
-  getFoodLogsForDate,
-  getLatestMeasurement,
-  getMeasurementsBetween,
   getSettings,
   getStrengthLogsForDate,
   getStrengthLogsForRange,
   getWorkoutsBetween,
   getWorkoutsForDate,
-  groupTasksForDay,
   listCompletedWorkouts,
 } from '@/db'
-import { STREAK_WINDOW_DAYS, buildDashboardSummary } from '@/lib/summary'
-import type { DashboardSummary } from '@/lib/summary'
-import { addDays, startOfWeek, todayISO } from '@/utils/date'
-import { useEffect } from 'react'
+import type { CardioSession, CompletedWorkout, WorkoutStatus } from '@/types'
+import { isCountedWorkoutDay } from '@/types'
+import { onActivityChanged } from '@/lib/activityEvents'
+import { startOfWeek, todayISO } from '@/utils/date'
 import { useDatabase } from './useDatabase'
 import { useAsyncData } from './useAsyncData'
-import { onFoodChanged } from '@/lib/foodEvents'
-import { onActivityChanged } from '@/lib/activityEvents'
+
+export interface DashboardSummary {
+  date: string
+  today: {
+    workout: {
+      status: WorkoutStatus | null
+      name: string | null
+      durationMinutes: number | null
+    }
+    cardioMinutes: number
+    activity: {
+      cardioSessions: number
+      workoutsCompleted: number
+    }
+  }
+  week: {
+    from: string
+    to: string
+    workouts: number
+    cardioMinutes: number
+  }
+}
 
 export interface UseDashboardDataResult {
   summary: DashboardSummary | null
@@ -31,11 +45,7 @@ export interface UseDashboardDataResult {
   reload: () => void
 }
 
-/**
- * Loads everything the dashboard needs in one pass.
- * With an empty database this resolves to zeros and empty states.
- * Re-runs whenever food is logged so calories/protein update instantly.
- */
+/** Loads real workout and cardio records for the dashboard's daily summaries. */
 export function useDashboardData(): UseDashboardDataResult {
   const { status } = useDatabase()
   const enabled = status === 'ready'
@@ -45,81 +55,77 @@ export function useDashboardData(): UseDashboardDataResult {
       const today = todayISO()
       const settings = await getSettings()
       const weekStart = startOfWeek(today, settings.weekStartsOn)
-      const streakStart = addDays(today, -(STREAK_WINDOW_DAYS - 1))
-
       const [
-        goal,
-        todayLogs,
-        weekLogs,
         todayWorkouts,
         weekWorkouts,
         todayCardioRaw,
         weekCardioRaw,
-        streakFoodLogs,
-        streakWorkouts,
-        streakCardioRaw,
-        latestWeight,
-        weekWeightMeasurements,
         completedWorkoutsRaw,
         todayStrengthLogs,
         weekStrengthLogs,
-        streakStrengthLogs,
-        todayTasks,
       ] = await Promise.all([
-        getActiveGoal(),
-        getFoodLogsForDate(today),
-        getFoodLogsBetween(weekStart, today),
         getWorkoutsForDate(today),
         getWorkoutsBetween(weekStart, today),
         getCardioForDate(today),
         getCardioBetween(weekStart, today),
-        getFoodLogsBetween(streakStart, today),
-        getWorkoutsBetween(streakStart, today),
-        getCardioBetween(streakStart, today),
-        getLatestMeasurement('weight'),
-        getMeasurementsBetween('weight', weekStart, today),
         listCompletedWorkouts(),
         getStrengthLogsForDate(today),
         getStrengthLogsForRange(weekStart, today),
-        getStrengthLogsForRange(streakStart, today),
-        groupTasksForDay(today),
       ])
 
       const todayCardio: CardioSession[] = todayCardioRaw
       const weekCardio: CardioSession[] = weekCardioRaw
-      const streakCardio: CardioSession[] = streakCardioRaw
-      const completedWorkoutsAll = completedWorkoutsRaw
+      const completedToday: CompletedWorkout[] = completedWorkoutsRaw
+        .filter((workout) => workout.completedAtLocal === today)
+        .sort((first, second) => first.startedAt.localeCompare(second.startedAt))
+      const completedStrengthToday = todayStrengthLogs.some(isCountedWorkoutDay)
+      const workout = todayWorkouts.find((item) => item.status === 'completed') ?? todayWorkouts[0]
+      const latestCompleted = completedToday[completedToday.length - 1]
+      const workoutStatus: WorkoutStatus | null =
+        workout?.status === 'completed' || latestCompleted || completedStrengthToday
+          ? 'completed'
+          : workout?.status ?? null
+      const workoutDays = new Set<string>()
+      for (const item of weekWorkouts) {
+        if (item.status === 'completed') workoutDays.add(item.date)
+      }
+      for (const item of completedWorkoutsRaw) {
+        if (item.completedAtLocal >= weekStart && item.completedAtLocal <= today) {
+          workoutDays.add(item.completedAtLocal)
+        }
+      }
+      for (const item of weekStrengthLogs) {
+        if (isCountedWorkoutDay(item)) workoutDays.add(item.date)
+      }
 
-      return buildDashboardSummary({
-        today,
-        weekStart,
-        todayTasks,
-        todayLogs,
-        weekLogs,
-        todayWorkouts: todayWorkouts as Workout[],
-        weekWorkouts: weekWorkouts as Workout[],
-        todayCardio,
-        weekCardio,
-        streakFoodLogs,
-        streakWorkouts: streakWorkouts as Workout[],
-        streakCardio,
-        latestWeight,
-        weekWeightMeasurements,
-        todayCompletedWorkouts: completedWorkoutsAll.filter(
-          (workout) => workout.completedAtLocal === today,
-        ),
-        todayStrengthLogs,
-        weekStrengthLogs,
-        streakStrengthLogs,
-        goal,
-      })
+      return {
+        date: today,
+        today: {
+          workout: {
+            status: workoutStatus,
+            name: latestCompleted?.name ?? workout?.name ?? todayStrengthLogs.find(isCountedWorkoutDay)?.exerciseNameSnapshot ?? null,
+            durationMinutes:
+              workout?.durationMinutes ??
+              (latestCompleted?.durationSeconds != null ? Math.round(latestCompleted.durationSeconds / 60) : null),
+          },
+          cardioMinutes: todayCardio.reduce((total, session) => total + session.durationMinutes, 0),
+          activity: {
+            cardioSessions: todayCardio.length,
+            workoutsCompleted: completedToday.length + (completedStrengthToday ? 1 : 0),
+          },
+        },
+        week: {
+          from: weekStart,
+          to: today,
+          workouts: workoutDays.size,
+          cardioMinutes: weekCardio.reduce((total, session) => total + session.durationMinutes, 0),
+        },
+      }
     },
     [enabled],
     { enabled },
   )
 
-  // Live updates: any food or activity write re-runs the query.
-  useEffect(() => onFoodChanged(reload), [reload])
   useEffect(() => onActivityChanged(reload), [reload])
 
   return { summary: data, loading, error, reload }
